@@ -1,3 +1,12 @@
+-- CreateEnum
+CREATE TYPE "Roles" AS ENUM ('Admin', 'utilisateur');
+
+-- CreateEnum
+CREATE TYPE "Plan" AS ENUM ('free', 'pro');
+
+-- CreateEnum
+CREATE TYPE "PlanAbonnement" AS ENUM ('mois', 'année');
+
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
@@ -6,6 +15,11 @@ CREATE TABLE "User" (
     "emailVerified" TIMESTAMP(3),
     "password" TEXT,
     "image" TEXT,
+    "role" "Roles" NOT NULL DEFAULT 'utilisateur',
+    "resetToken" TEXT,
+    "resetTokenExpiry" TIMESTAMP(3),
+    "plan" "Plan" NOT NULL DEFAULT 'free',
+    "clientId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -13,14 +27,15 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
-CREATE TABLE "Favoris" (
-    "id" SERIAL NOT NULL,
+CREATE TABLE "Abonnement" (
+    "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "joueurNom" TEXT NOT NULL,
-    "joueurId" INTEGER NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "plan" "Plan" NOT NULL,
+    "periode" "PlanAbonnement" NOT NULL,
+    "datedebut" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "datefin" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Favoris_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Abonnement_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -75,7 +90,16 @@ CREATE TABLE "Authenticator" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "User_name_key" ON "User"("name");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_clientId_key" ON "User"("clientId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Abonnement_userId_key" ON "Abonnement"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Session_sessionToken_key" ON "Session"("sessionToken");
@@ -84,7 +108,7 @@ CREATE UNIQUE INDEX "Session_sessionToken_key" ON "Session"("sessionToken");
 CREATE UNIQUE INDEX "Authenticator_credentialID_key" ON "Authenticator"("credentialID");
 
 -- AddForeignKey
-ALTER TABLE "Favoris" ADD CONSTRAINT "Favoris_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Abonnement" ADD CONSTRAINT "Abonnement_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

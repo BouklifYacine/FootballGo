@@ -1,0 +1,6 @@
+1 - Créer une nouvelle Database sur le logiciel PgAdmin 4 
+2 - clique droit sur database et  inscrire le nom de la base de données 
+3 - Copier l'url dans le .env DATABASE_URL avec comme exemple ceci : "  postgresql://postgres:yacine@localhost:5432/(NOM DE VOTRE DATABASE)?schema=public  "
+4 - Faire la commande npx prisma migrate dev qui va générer la migration de votre nouvelle base de données 
+5 - Faire la commande npx prisma generate qui va générer la BDD 
+6 - Faire npx prisma studio pour visualiser votre BDD 
