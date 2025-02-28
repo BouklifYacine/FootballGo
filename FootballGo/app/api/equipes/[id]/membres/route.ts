@@ -6,9 +6,9 @@ interface RouteParams {
 }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
-  const { id } = params;
+  const { id } = await params;
   const idUtilisateur = "cm7otmoce0002irmoe5qxpl6x";
- 
+
   try {
     const equipe = await prisma.equipe.findUnique({
       where: { id },
@@ -47,16 +47,14 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
               select: {
                 id: true,
                 name: true,
-               
-               
-              }
-            }
-          }
+              },
+            },
+          },
         },
       },
     });
 
-    return NextResponse.json({ListeEquipe : equipeComplete?.membres});
+    return NextResponse.json({ ListeEquipe: equipeComplete?.membres });
   } catch (error) {
     console.error("Erreur lors de la recherche d'équipe:", error);
     return NextResponse.json({ message: "Erreur serveur" }, { status: 500 });
