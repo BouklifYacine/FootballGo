@@ -27,6 +27,11 @@ model User {
   Authenticator    Authenticator[]
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
+  
+  // Relations pour FootballConnect
+  membreEquipes    MembreEquipe[]
+  presences        Presence[]
+  statsJoueur      StatistiqueJoueur[]
 }
 
 // Stripe Model
@@ -113,4 +118,160 @@ model Authenticator {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, credentialID])
+}
+
+// Modèle équipe
+model Equipe {
+  id            String               @id @default(cuid())
+  nom           String
+  description   String?
+  logoUrl       String?
+  dateCreation  DateTime             @default(now())
+  
+  // Relations
+  membres       MembreEquipe[]
+  evenements    Evenement[]
+  statsEquipe   StatistiqueEquipe[]
+}
+
+// Relation entre utilisateurs et équipes
+model MembreEquipe {
+  id              String     @id @default(cuid())
+  role            RoleEquipe @default(JOUEUR)
+  posteJoueur     PosteJoueur? // Poste du joueur si role = JOUEUR
+  dateAdhesion    DateTime   @default(now())
+  
+  // Relations
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  equipe          Equipe     @relation(fields: [equipeId], references: [id], onDelete: Cascade)
+  equipeId        String
+
+  @@unique([userId, equipeId])
+}
+
+// Rôles dans l'équipe
+enum RoleEquipe {
+  ADMIN
+  ENTRAINEUR
+  ADMIN_ENTRAINEUR  // Combinaison des deux rôles
+  JOUEUR
+}
+
+// Postes des joueurs
+enum PosteJoueur {
+  GARDIEN
+  DEFENSEUR
+  MILIEU
+  ATTAQUANT
+}
+
+// Événement d'équipe
+model Evenement {
+  id              String               @id @default(cuid())
+  titre           String
+  description     String?
+  lieu            String?
+  typeEvenement   TypeEvenement        @default(ENTRAINEMENT)
+  dateDebut       DateTime
+  dateFin         DateTime
+  dateCreation    DateTime             @default(now())
+  
+  // Relations
+  equipe          Equipe               @relation(fields: [equipeId], references: [id], onDelete: Cascade)
+  equipeId        String
+  presences       Presence[]
+  statsJoueur     StatistiqueJoueur[]
+  statEquipe      StatistiqueEquipe?
+
+  @@index([equipeId])
+}
+
+// Type d'événement simplifié
+enum TypeEvenement {
+  MATCH
+  ENTRAINEMENT
+}
+
+// Présence à un événement
+model Presence {
+  id              String           @id @default(cuid())
+  statut          StatutPresence   @default(EN_ATTENTE)
+  dateCreation    DateTime         @default(now())
+  
+  // Relations
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  evenement       Evenement        @relation(fields: [evenementId], references: [id], onDelete: Cascade)
+  evenementId     String
+
+  @@unique([userId, evenementId])
+}
+
+// Statut de présence
+enum StatutPresence {
+  EN_ATTENTE
+  PRESENT
+  ABSENT
+  INCERTAIN
+}
+
+// Statistiques d'un joueur pour un événement
+model StatistiqueJoueur {
+  id                String      @id @default(cuid())
+  // Statistiques individuelles principales
+  buts              Int         @default(0)
+  passes            Int         @default(0)
+  minutesJouees     Int         @default(0)
+  cartonJaune       Int         @default(0)
+  cartonRouge       Int         @default(0)
+  note              Float?      // Note globale sur 10
+  
+  titulaire         Boolean     @default(false)
+  poste             PosteJoueur? // Position du joueur pendant le match spécifique
+  dateCreation      DateTime    @default(now())
+  
+  // Relations
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String
+  evenement         Evenement   @relation(fields: [evenementId], references: [id], onDelete: Cascade)
+  evenementId       String
+
+  @@unique([userId, evenementId])
+}
+
+// Statistiques d'équipe
+model StatistiqueEquipe {
+  id                String        @id @default(cuid())
+  // Résultats et performance d'équipe
+  resultatMatch     ResultatMatch?
+  butsMarques       Int           @default(0)
+  butsEncaisses     Int           @default(0)
+  cleanSheet        Boolean       @default(false)
+  possession        Int?          // Pourcentage de possession (0-100)
+  tirsTotal         Int?          // Nombre total de tirs
+  tirsCadres        Int?          // Nombre de tirs cadrés
+  corners           Int?          // Nombre de corners obtenus
+  fautes            Int?          // Nombre de fautes commises
+  
+  // Contexte du match
+  domicile          Boolean       @default(true)  // Match à domicile ou à l'extérieur
+  competition       String?       // Type de compétition (amical, championnat, coupe)
+  adversaire        String?       // Nom de l'équipe adverse
+  dateCreation      DateTime      @default(now())
+  
+  // Relations
+  equipe            Equipe        @relation(fields: [equipeId], references: [id], onDelete: Cascade)
+  equipeId          String
+  evenement         Evenement?    @relation(fields: [evenementId], references: [id])
+  evenementId       String?       @unique // Un événement ne peut avoir qu'une seule entrée de statistique d'équipe
+
+  @@index([equipeId])
+}
+
+// Résultat de match
+enum ResultatMatch {
+  VICTOIRE
+  DEFAITE
+  MATCH_NUL
 }
