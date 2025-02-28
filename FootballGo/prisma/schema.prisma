@@ -17,6 +17,7 @@ model User {
   password         String?
   image            String?
   role             Roles           @default(utilisateur)
+  roleEquipe       RoleEquipe      @default(JOUEUR)
   resetToken       String?
   resetTokenExpiry DateTime?
   accounts         Account[]
