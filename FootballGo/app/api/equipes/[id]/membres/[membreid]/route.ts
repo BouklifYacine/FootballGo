@@ -8,7 +8,7 @@ interface RouteParams {
 
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   const { role, posteJoueur } = await request.json();
-  const { membreid, id } = await params; 
+  const { membreid, id } = await params;
   const idUtilisateur = "cm7otaiad0000irmosgcw75q0";
 
   try {
@@ -72,6 +72,69 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       role: joueurmodifie.role,
       poste: joueurmodifie.posteJoueur,
     });
+  } catch (error) {
+    console.log(
+      "erreur serveur lors du changement des données du joueur",
+      error
+    );
+    return NextResponse.json(
+      { message: "erreur serveur lors du changement des données du joueur" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
+  const { membreid, id } = await params;
+  const idUtilisateur = "cm7otaiad0000irmosgcw75q0";
+
+  try {
+    const equipe = await prisma.equipe.findUnique({
+      where: { id },
+    });
+
+    if (!equipe) {
+      return NextResponse.json(
+        { message: "Équipe non trouvée" },
+        { status: 404 }
+      );
+    }
+
+    const joueurauclub = await prisma.membreEquipe.findUnique({
+      where: { userId: membreid },
+    });
+
+    if (!joueurauclub) {
+      return NextResponse.json(
+        { message: "Ce joueur ne fait pas partie de ce club" },
+        { status: 404 }
+      );
+    }
+
+    const CoachEquipe = await prisma.membreEquipe.findFirst({
+      where: {
+        userId: idUtilisateur,
+        equipeId: id,
+        role: "ENTRAINEUR",
+      },
+    });
+
+    if (!CoachEquipe) {
+      return NextResponse.json(
+        {
+          message:
+            "Seuls les coach de cette équipe peuvent supprimer les données du club",
+        },
+        { status: 403 }
+      );
+    }
+
+    const joueursupprimer = await prisma.membreEquipe.delete({
+      where: { id: joueurauclub.id },
+      include: { user: { select : {name : true}} },
+    });
+
+    return NextResponse.json({ message: `Le joueur ${joueursupprimer.user.name} a bien été supprimé ` });
   } catch (error) {
     console.log(
       "erreur serveur lors du changement des données du joueur",
