@@ -117,6 +117,7 @@ model Equipe {
   description  String?
   logoUrl      String?
   dateCreation DateTime @default(now())
+  codeInvitation String? 
 
   membres     MembreEquipe[]
   evenements  Evenement[]

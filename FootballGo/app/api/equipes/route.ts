@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     const { nom, logoUrl, description } = await request.json();
   
-    const idUtilisateur = "cm7otaiad0000irmosgcw75q0";
+    const idUtilisateur = "cm7oz4qau0000irj0fl31bdp9";
   
     const validation = CreationEquipeSchema.safeParse({
       nom,
