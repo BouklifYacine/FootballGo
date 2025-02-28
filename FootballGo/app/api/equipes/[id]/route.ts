@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   const { id } = await params;
-  const idUtilisateur = "cm7ojx8uk0000ir5o5gd422sr";
+  const idUtilisateur = "cm7otmoce0002irmoe5qxpl6x";
 
   try {
     const equipe = await prisma.equipe.findUnique({
@@ -45,7 +45,7 @@ export async function GET(
       },
     });
 
-    return NextResponse.json(equipeComplete);
+    return NextResponse.json({ListeEquipe : equipeComplete?.nom});
   } catch (error) {
     console.error("Erreur lors de la recherche d'équipe:", error);
     return NextResponse.json({ message: "Erreur serveur" }, { status: 500 });
