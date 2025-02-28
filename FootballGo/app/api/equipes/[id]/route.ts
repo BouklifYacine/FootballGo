@@ -97,22 +97,81 @@ export async function PATCH(
     });
 
     if (!membreEquipe) {
-      return NextResponse.json( {message: "Seuls les coach de cette équipe peuvent modifier les données du club"}, { status: 403 } )}
+      return NextResponse.json(
+        {
+          message:
+            "Seuls les coach de cette équipe peuvent modifier les données du club",
+        },
+        { status: 403 }
+      );
+    }
 
-      const nouvelledonnesEquipe = await prisma.equipe.update({
-        where : {id}, 
-        data : {
-            nom : nom, 
-            description : description, 
-            logoUrl : logoUrl
-        }
-      })
+    const nouvelledonnesEquipe = await prisma.equipe.update({
+      where: { id },
+      data: {
+        nom: nom,
+        description: description,
+        logoUrl: logoUrl,
+      },
+    });
 
-      return NextResponse.json({message : "Changements effectué" , nouvelledonnesEquipe },  {status : 200 })
+    return NextResponse.json(
+      { message: "Changements effectué", nouvelledonnesEquipe },
+      { status: 200 }
+    );
   } catch (error) {
     console.log(
       "Erreur lors de la modification des infos de votre équipe ",
       error
     );
   }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const { id } = await params;
+  const idUtilisateur = "cm7ojx8uk0000ir5o5gd422sr";
+
+  const equipe = await prisma.equipe.findUnique({
+    where: { id },
+  });
+
+  if (!equipe) {
+    return NextResponse.json(
+      { message: "Équipe non trouvée" },
+      { status: 404 }
+    );
+  }
+
+  const membreEquipe = await prisma.membreEquipe.findFirst({
+    where: {
+      userId: idUtilisateur,
+      equipeId: id,
+      role: "ENTRAINEUR",
+    },
+  });
+
+  if (!membreEquipe) {
+    return NextResponse.json(
+      {
+        message:
+          "Seuls les coach de cette équipe peuvent modifier les données du club",
+      },
+      { status: 403 }
+    );
+  }
+
+  const equipeSupprimer = await prisma.equipe.delete({
+    where: { id: id },
+  });
+
+  return NextResponse.json(
+    {
+      nomequipe: equipeSupprimer.nom,
+      message: `L'équipe ${equipeSupprimer.nom} a bien été supprimé`,
+    },
+    { status: 200 }
+  );
 }
