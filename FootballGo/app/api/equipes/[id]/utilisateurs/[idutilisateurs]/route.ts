@@ -21,7 +21,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Vérifier si l'utilisateur connecté est soit l'utilisateur qui veut quitter, soit un coach
     if (idUtilisateurConnecte !== membreId) {
       const membreConnecte = await prisma.membreEquipe.findFirst({
         where: {
@@ -76,7 +75,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
   
     await prisma.$transaction(async (tx) => {
-      // Supprimer les statistiques du joueur
       await tx.statistiqueJoueur.deleteMany({
         where: {
           userId: membreId,
@@ -86,7 +84,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
         },
       });
 
-      // Supprimer les présences du joueur
       await tx.presence.deleteMany({
         where: {
           userId: membreId,
@@ -96,7 +93,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
         },
       });
 
-      // Supprimer le membre de l'équipe
       await tx.membreEquipe.delete({
         where: {
           id: membreASupprimer.id,

@@ -7,7 +7,7 @@ interface RouteParams {
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
-  const idUtilisateur = "cm7oz4qau0000irj0fl31bdp9";
+  const idUtilisateur = "cm7q0n4gp0000irv8pjkj764m";
 
   try {
     const equipe = await prisma.equipe.findUnique({
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
 export async function POST(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
-  const idUtilisateur = "cm7py8xtm0000irp8jxz60bjv";
+  const idUtilisateur = "cm7q1lb7x0007irv8o4w89ao8";
   try {
     const { codeInvitation } = await request.json();
 
@@ -113,21 +113,28 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         { status: 403 }
       );
     }
-    const nouveaumembre = await prisma.membreEquipe.create({
-      data: {
-        equipeId: id,
-        userId: idUtilisateur,
-        role: "JOUEUR",
-      },
+
+    const nomEquipe = equipe?.nom;
+
+    await prisma.$transaction(async (tx) => {
+      await tx.membreEquipe.create({
+        data: {
+          equipeId: id,
+          userId: idUtilisateur,
+          role: "JOUEUR",
+        },
+      });
+
+      await tx.user.update({
+        where: { id: idUtilisateur },
+        data: {
+          roleEquipe: "JOUEUR",
+          AunClub: "OUI",
+        },
+      });
     });
 
-    return NextResponse.json(
-      {
-        message: `Vous avez rejoins l'équipe ${equipe.nom}.`,
-        membre: nouveaumembre,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({message: `Vous avez rejoins l'équipe ${nomEquipe}.`},{ status: 200 });
   } catch (error) {
     console.log(error);
     return NextResponse.json(

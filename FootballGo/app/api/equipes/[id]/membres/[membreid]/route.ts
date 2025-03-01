@@ -85,15 +85,15 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 }
 
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
-  const { membreid, id } = await params;
-  const idUtilisateur = "cm7otaiad0000irmosgcw75q0";
+  const { id , membreid } = await params;
+  const idUtilisateur = "cm7q0n4gp0000irv8pjkj764m";
 
   try {
-    const equipe = await prisma.equipe.findUnique({
+    const equipeID = await prisma.equipe.findUnique({
       where: { id },
     });
 
-    if (!equipe) {
+    if (!equipeID) {
       return NextResponse.json(
         { message: "Équipe non trouvée" },
         { status: 404 }
@@ -102,6 +102,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     const joueurauclub = await prisma.membreEquipe.findUnique({
       where: { userId: membreid },
+      include: { user: { select: { name: true } } },
     });
 
     if (!joueurauclub) {
@@ -123,25 +124,39 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json(
         {
           message:
-            "Seuls les coach de cette équipe peuvent supprimer les données du club",
+            "Seuls les coach de cette équipe peuvent supprimer les membres du club",
         },
         { status: 403 }
       );
     }
+  
+    const nomJoueur = joueurauclub.user.name;
 
-    const joueursupprimer = await prisma.membreEquipe.delete({
-      where: { id: joueurauclub.id },
-      include: { user: { select : {name : true}} },
+    await prisma.$transaction(async (tx) => {
+  
+      await tx.user.update({
+        where: { id: membreid },
+        data: {
+          roleEquipe: "SANSCLUB",
+          AunClub: "NON",
+        },
+      });
+
+      await tx.membreEquipe.delete({
+        where: { id: joueurauclub.id },
+      });
     });
 
-    return NextResponse.json({ message: `Le joueur ${joueursupprimer.user.name} a bien été supprimé ` });
+    return NextResponse.json({ 
+      message: `Le joueur ${nomJoueur} a bien été retiré du club` 
+    });
   } catch (error) {
-    console.log(
-      "erreur serveur lors du changement des données du joueur",
+    console.error(
+      "Erreur serveur lors de la suppression du membre",
       error
     );
     return NextResponse.json(
-      { message: "erreur serveur lors du changement des données du joueur" },
+      { message: "Erreur serveur lors de la suppression du membre" },
       { status: 500 }
     );
   }
