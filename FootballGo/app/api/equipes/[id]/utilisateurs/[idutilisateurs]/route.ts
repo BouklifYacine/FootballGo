@@ -7,7 +7,7 @@ interface RouteParams {
 
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   const { id: equipeId, idutilisateurs: membreId } = await params;
-  const idUtilisateurConnecte = "cm7py8xtm0000irp8jxz60bjv";
+  const idUtilisateurConnecte = "cm7q0n4gp0000irv8pjkj764m";
 
   try {
     const equipe = await prisma.equipe.findUnique({
@@ -21,6 +21,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       );
     }
 
+    // Vérifier les permissions
     if (idUtilisateurConnecte !== membreId) {
       const membreConnecte = await prisma.membreEquipe.findFirst({
         where: {
@@ -45,6 +46,11 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
         userId: membreId,
         equipeId: equipeId,
       },
+      include: {
+        user: {
+          select: { name: true }
+        }
+      }
     });
 
     if (!membreASupprimer) {
@@ -73,8 +79,17 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       }
     }
 
+    const nomUtilisateur = membreASupprimer.user?.name || "L'utilisateur";
   
     await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: membreId },
+        data: {
+          roleEquipe: "SANSCLUB",
+          AunClub: "NON",
+        },
+      });
+
       await tx.statistiqueJoueur.deleteMany({
         where: {
           userId: membreId,
@@ -101,7 +116,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     });
 
     return NextResponse.json({
-      message: `L'utilisateur a quitté l'équipe ${equipe.nom} avec succès`,
+      message: `${nomUtilisateur} a quitté l'équipe ${equipe.nom} avec succès`,
     });
   } catch (error) {
     console.error("Erreur serveur lors de la suppression du membre", error);
