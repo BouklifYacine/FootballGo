@@ -1,4 +1,7 @@
 -- CreateEnum
+CREATE TYPE "AunClub" AS ENUM ('OUI', 'NON');
+
+-- CreateEnum
 CREATE TYPE "Roles" AS ENUM ('Admin', 'utilisateur');
 
 -- CreateEnum
@@ -8,7 +11,7 @@ CREATE TYPE "Plan" AS ENUM ('free', 'pro');
 CREATE TYPE "PlanAbonnement" AS ENUM ('mois', 'année');
 
 -- CreateEnum
-CREATE TYPE "RoleEquipe" AS ENUM ('ENTRAINEUR', 'JOUEUR');
+CREATE TYPE "RoleEquipe" AS ENUM ('SANSCLUB', 'ENTRAINEUR', 'JOUEUR');
 
 -- CreateEnum
 CREATE TYPE "PosteJoueur" AS ENUM ('GARDIEN', 'DEFENSEUR', 'MILIEU', 'ATTAQUANT');
@@ -31,7 +34,8 @@ CREATE TABLE "User" (
     "password" TEXT,
     "image" TEXT,
     "role" "Roles" NOT NULL DEFAULT 'utilisateur',
-    "roleEquipe" "RoleEquipe" NOT NULL DEFAULT 'JOUEUR',
+    "roleEquipe" "RoleEquipe" NOT NULL DEFAULT 'SANSCLUB',
+    "AunClub" "AunClub" NOT NULL DEFAULT 'NON',
     "resetToken" TEXT,
     "resetTokenExpiry" TIMESTAMP(3),
     "plan" "Plan" NOT NULL DEFAULT 'free',
@@ -137,7 +141,6 @@ CREATE TABLE "Evenement" (
     "lieu" TEXT,
     "typeEvenement" "TypeEvenement" NOT NULL DEFAULT 'ENTRAINEMENT',
     "dateDebut" TIMESTAMP(3) NOT NULL,
-    "dateFin" TIMESTAMP(3) NOT NULL,
     "dateCreation" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "equipeId" TEXT NOT NULL,
 
