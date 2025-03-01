@@ -9,7 +9,7 @@ interface RouteParams {
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   const { role, posteJoueur } = await request.json();
   const { membreid, id } = await params;
-  const idUtilisateur = "cm7otaiad0000irmosgcw75q0";
+  const idUtilisateur = "cm7q0n4gp0000irv8pjkj764m";
 
   try {
     const validation = ChangementDonneeJoueur.safeParse({ role, posteJoueur });
@@ -36,6 +36,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     const joueurauclub = await prisma.membreEquipe.findUnique({
       where: { userId: membreid },
+      include: { user: { select: { name: true } } },
     });
 
     if (!joueurauclub) {
@@ -63,22 +64,35 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const joueurmodifie = await prisma.membreEquipe.update({
-      where: { id: joueurauclub.id },
-      data: { role, posteJoueur },
+    const result = await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: membreid },
+        data: {
+          roleEquipe: role,
+        },
+      });
+
+      const joueurModifie = await tx.membreEquipe.update({
+        where: { id: joueurauclub.id },
+        data: { role, posteJoueur },
+      });
+
+      return joueurModifie;
     });
 
     return NextResponse.json({
-      role: joueurmodifie.role,
-      poste: joueurmodifie.posteJoueur,
+      message: `Le rôle et le poste de ${joueurauclub.user.name} ont été mis à jour`,
+      role: result.role,
+      poste: result.posteJoueur,
+      nomJoueur: joueurauclub.user.name
     });
   } catch (error) {
-    console.log(
-      "erreur serveur lors du changement des données du joueur",
+    console.error(
+      "Erreur serveur lors du changement des données du joueur",
       error
     );
     return NextResponse.json(
-      { message: "erreur serveur lors du changement des données du joueur" },
+      { message: "Erreur serveur lors du changement des données du joueur" },
       { status: 500 }
     );
   }
