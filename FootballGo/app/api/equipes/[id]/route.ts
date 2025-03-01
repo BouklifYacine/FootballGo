@@ -45,7 +45,7 @@ export async function GET(
       },
     });
 
-    return NextResponse.json({ListeEquipe : equipeComplete?.nom});
+    return NextResponse.json({ ListeEquipe: equipeComplete?.nom });
   } catch (error) {
     console.error("Erreur lors de la recherche d'équipe:", error);
     return NextResponse.json({ message: "Erreur serveur" }, { status: 500 });
@@ -132,7 +132,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   const { id } = await params;
-  const idUtilisateur = "cm7ojx8uk0000ir5o5gd422sr";
+  const idUtilisateur = "cm7q0n4gp0000irv8pjkj764m";
 
   const equipe = await prisma.equipe.findUnique({
     where: { id },
@@ -163,14 +163,26 @@ export async function DELETE(
     );
   }
 
-  const equipeSupprimer = await prisma.equipe.delete({
-    where: { id: id },
+  const nomequipe = equipe.nom;
+
+  await prisma.$transaction(async (tx) => {
+    await tx.user.update({
+      where: { id: idUtilisateur },
+      data: {
+        roleEquipe: "SANSCLUB",
+        AunClub: "NON",
+      },
+    });
+
+    await tx.equipe.delete({
+      where: { id },
+    });
   });
 
   return NextResponse.json(
     {
-      nomequipe: equipeSupprimer.nom,
-      message: `L'équipe ${equipeSupprimer.nom} a bien été supprimé`,
+      nomequipe,
+      message: `L'équipe ${nomequipe} a bien été supprimé`,
     },
     { status: 200 }
   );
