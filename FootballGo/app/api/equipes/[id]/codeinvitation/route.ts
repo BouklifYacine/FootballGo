@@ -68,6 +68,77 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   }
 }
 
+export async function POST(request: NextRequest, { params }: RouteParams) {
+  const { id } = await params;
+  const idUtilisateur = "cm7py8xtm0000irp8jxz60bjv";
+  try {
+    const { codeInvitation } = await request.json();
+
+    if (!codeInvitation) {
+      return NextResponse.json(
+        { message: "Le code d'invitation est requis" },
+        { status: 400 }
+      );
+    }
+
+    const equipe = await prisma.equipe.findUnique({
+      where: { id },
+    });
+
+    if (!equipe) {
+      return NextResponse.json(
+        { message: "Équipe non trouvée" },
+        { status: 404 }
+      );
+    }
+
+    if (equipe.codeInvitation !== codeInvitation)
+      return NextResponse.json(
+        { message: "Code d'invitation invalide" },
+        { status: 400 }
+      );
+
+    const membreExistant = await prisma.membreEquipe.findFirst({
+      where: {
+        userId: idUtilisateur,
+        equipeId: id,
+      },
+    });
+
+    if (membreExistant) {
+      return NextResponse.json(
+        {
+          message: "Vous etes déja dans ce club ",
+        },
+        { status: 403 }
+      );
+    }
+    const nouveaumembre = await prisma.membreEquipe.create({
+      data: {
+        equipeId: id,
+        userId: idUtilisateur,
+        role: "JOUEUR",
+      },
+    });
+
+    return NextResponse.json(
+      {
+        message: `Vous avez rejoins l'équipe ${equipe.nom}.`,
+        membre: nouveaumembre,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json(
+      {
+        message: "Une erreur serveur sur la validation du code d'invitation ",
+      },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
   const idUtilisateur = "cm7oz4qau0000irj0fl31bdp9";
@@ -112,7 +183,9 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       data: { codeInvitation: null },
     });
 
-    return NextResponse.json({message : `Code d'invitation de l'équipe ${equipe.nom} supprimé`})
+    return NextResponse.json({
+      message: `Code d'invitation de l'équipe ${equipe.nom} supprimé`,
+    });
   } catch (error) {
     console.error(
       "Erreur serveur lors de la récupération du code d'invitation",

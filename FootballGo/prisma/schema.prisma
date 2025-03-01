@@ -155,7 +155,6 @@ model Evenement {
   lieu          String?
   typeEvenement TypeEvenement @default(ENTRAINEMENT)
   dateDebut     DateTime
-  dateFin       DateTime
   dateCreation  DateTime      @default(now())
 
   equipe      Equipe              @relation(fields: [equipeId], references: [id], onDelete: Cascade)
