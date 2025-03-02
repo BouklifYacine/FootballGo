@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import dayjs from "dayjs";
-import "dayjs/locale/fr"; 
+import "dayjs/locale/fr";
 
 import {
   evenementSchema,
@@ -76,7 +76,7 @@ async function evenementExisteDejaALaMemeHeure(
   dateFin?: Date,
   typeEvenement?: "MATCH" | "ENTRAINEMENT"
 ): Promise<boolean> {
-  const tolerance = 2; 
+  const tolerance = 2;
 
   const dateDebutMoins = new Date(dateDebut);
   dateDebutMoins.setHours(dateDebutMoins.getHours() - tolerance);
@@ -132,13 +132,11 @@ async function creerEvenementUnique(
           error: "Un événement existe déjà à une heure proche",
           message: `Un ${donnees.typeEvenement === "MATCH" ? "match" : "entraînement"} est déjà programmé autour de cette heure. Veuillez choisir un autre horaire.`,
         },
-        { status: 409 } 
+        { status: 409 }
       );
     }
 
- 
     const nouvelEvenement = await prisma.$transaction(async (tx) => {
-
       const evenement = await tx.evenement.create({
         data: {
           titre: donnees.titre,
@@ -175,7 +173,6 @@ async function creerEvenementsRecurrents(
   equipeId: string
 ) {
   try {
-
     const dateDebut = dayjs(donnees.date).startOf("day");
     const dateFin = dayjs(donnees.dateFin).endOf("day");
 
@@ -199,10 +196,9 @@ async function creerEvenementsRecurrents(
       dateCourante.isBefore(dateFin) ||
       dateCourante.isSame(dateFin, "day")
     ) {
-      const jourSemaine = dateCourante.day(); 
+      const jourSemaine = dateCourante.day();
 
       if (donnees.jours.includes(jourSemaine)) {
-
         const dateEvenement = dateCourante
           .hour(heures)
           .minute(minutes)
@@ -217,13 +213,11 @@ async function creerEvenementsRecurrents(
         );
 
         if (evenementExiste) {
-
           evenementsConflits.push({
             date: dateEvenement.format("YYYY-MM-DD"),
             dateFormatee: dateEvenement.format("dddd D MMMM YYYY"),
           });
         } else {
-        
           evenementsACreer.push({
             titre: donnees.titre,
             description: donnees.description || null,
@@ -256,7 +250,6 @@ async function creerEvenementsRecurrents(
     }
 
     const resultats = await prisma.$transaction(async (tx) => {
-
       const creationResultat = await tx.evenement.createMany({
         data: evenementsACreer,
       });
@@ -290,7 +283,7 @@ async function creerEvenementsRecurrents(
           conflits: evenementsConflits,
         },
         { status: 207 }
-      ); 
+      );
     }
 
     return NextResponse.json(
@@ -317,98 +310,95 @@ async function creerEvenementsRecurrents(
   }
 }
 
-
 export async function GET(
-    req: NextRequest,
-    { params }: { params: { idEquipe: string } }
-  ) {
-    try {
-      const equipeId = params.idEquipe;
-      
-      const membreEquipe = await prisma.membreEquipe.findFirst({
-        where: {
-          equipeId,
-          userId: idUtilisateur,
-          role: { in: ["ENTRAINEUR", "JOUEUR"] }
-        },
-      });
-  
-      if (!membreEquipe) {
-        return NextResponse.json(
-          { error: "Vous n'êtes pas membre de cette équipe" },
-          { status: 403 }
-        );
-      }
-  
-      const url = new URL(req.url);
-      const debut = url.searchParams.get("debut");
-      const fin = url.searchParams.get("fin");
-      const type = url.searchParams.get("type");
-      const limit = parseInt(url.searchParams.get("limit") || "50");
-      const page = parseInt(url.searchParams.get("page") || "1");
-      const skip = (page - 1) * limit;
-  
-      const where: Prisma.EvenementWhereInput = { equipeId };
-      
-      if (debut || fin) {
-        where.dateDebut = {};
-        
-        if (debut) {
-          where.dateDebut.gte = new Date(debut);
-        }
-        
-        if (fin) {
-          where.dateDebut.lte = new Date(fin);
-        }
-      }
-      
-      if (type && ["MATCH", "ENTRAINEMENT"].includes(type)) {
-        where.typeEvenement = type as "MATCH" | "ENTRAINEMENT";
-      }
-  
-      const evenements = await prisma.evenement.findMany({
-        where,
-        orderBy: { dateDebut: "asc" },
-        skip,
-        take: limit,
-        include: {
+  req: NextRequest,
+  { params }: { params: { idEquipe: string } }
+) {
+  try {
+    const equipeId = params.idEquipe;
 
-          presences: {
-            where: { userId: idUtilisateur },
-            select: { id: true, statut: true }
-          }
-        }
-      });
-      
-      const total = await prisma.evenement.count({ where });
+    const membreEquipe = await prisma.membreEquipe.findFirst({
+      where: {
+        equipeId,
+        userId: idUtilisateur,
+        role: { in: ["ENTRAINEUR", "JOUEUR"] },
+      },
+    });
 
-      const evenementsFormates = evenements.map(evenement => {
-
-        const dateObj = dayjs(evenement.dateDebut);
-        
-        return {
-          ...evenement,
-          dateDebutFormatee: dateObj.format("dddd D MMMM YYYY à HH:mm"),
-          date: dateObj.format("YYYY-MM-DD"),
-          heure: dateObj.format("HH:mm"),
-          maPresence: evenement.presences[0] || null
-        };
-      });
-  
-      return NextResponse.json({
-        evenements: evenementsFormates,
-        pagination: {
-          total,
-          pages: Math.ceil(total / limit),
-          page,
-          limit
-        }
-      });
-    } catch (error) {
-      console.error("Erreur lors de la récupération des événements:", error);
+    if (!membreEquipe) {
       return NextResponse.json(
-        { error: "Erreur lors de la récupération des événements" },
-        { status: 500 }
+        { error: "Vous n'êtes pas membre de cette équipe" },
+        { status: 403 }
       );
     }
+
+    const url = new URL(req.url);
+    const debut = url.searchParams.get("debut");
+    const fin = url.searchParams.get("fin");
+    const type = url.searchParams.get("type");
+    const limit = parseInt(url.searchParams.get("limit") || "50");
+    const page = parseInt(url.searchParams.get("page") || "1");
+    const skip = (page - 1) * limit;
+
+    const where: Prisma.EvenementWhereInput = { equipeId };
+
+    if (debut || fin) {
+      where.dateDebut = {};
+
+      if (debut) {
+        where.dateDebut.gte = new Date(debut);
+      }
+
+      if (fin) {
+        where.dateDebut.lte = new Date(fin);
+      }
+    }
+
+    if (type && ["MATCH", "ENTRAINEMENT"].includes(type)) {
+      where.typeEvenement = type as "MATCH" | "ENTRAINEMENT";
+    }
+
+    const evenements = await prisma.evenement.findMany({
+      where,
+      orderBy: { dateDebut: "asc" },
+      skip,
+      take: limit,
+      include: {
+        presences: {
+          where: { userId: idUtilisateur },
+          select: { id: true, statut: true },
+        },
+      },
+    });
+
+    const total = await prisma.evenement.count({ where });
+
+    const evenementsFormates = evenements.map((evenement) => {
+      const dateObj = dayjs(evenement.dateDebut);
+
+      return {
+        ...evenement,
+        dateDebutFormatee: dateObj.format("dddd D MMMM YYYY à HH:mm"),
+        date: dateObj.format("YYYY-MM-DD"),
+        heure: dateObj.format("HH:mm"),
+        maPresence: evenement.presences[0] || null,
+      };
+    });
+
+    return NextResponse.json({
+      evenements: evenementsFormates,
+      pagination: {
+        total,
+        pages: Math.ceil(total / limit),
+        page,
+        limit,
+      },
+    });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des événements:", error);
+    return NextResponse.json(
+      { error: "Erreur lors de la récupération des événements" },
+      { status: 500 }
+    );
   }
+}

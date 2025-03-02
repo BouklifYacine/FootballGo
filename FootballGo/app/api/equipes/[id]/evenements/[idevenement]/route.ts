@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import dayjs from "dayjs";
-import "dayjs/locale/fr"; 
+import "dayjs/locale/fr";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/prisma";
@@ -9,65 +9,70 @@ dayjs.locale("fr");
 
 const idUtilisateur = "cm7q0n4gp0000irv8pjkj764m";
 
-
 const updateEvenementSchema = z.object({
   titre: z.string().min(1, "Le titre est requis").optional(),
   description: z.string().optional().nullable(),
   lieu: z.string().optional().nullable(),
   typeEvenement: z.enum(["MATCH", "ENTRAINEMENT"]).optional(),
-  date: z.string().refine(val => !isNaN(Date.parse(val)), {
-    message: "Format de date invalide"
-  }).optional(),
-  heure: z.string().regex(/^\d{1,2}:\d{2}$/, "Format d'heure invalide (HH:MM)").optional(),
+  date: z
+    .string()
+    .refine((val) => !isNaN(Date.parse(val)), {
+      message: "Format de date invalide",
+    })
+    .optional(),
+  heure: z
+    .string()
+    .regex(/^\d{1,2}:\d{2}$/, "Format d'heure invalide (HH:MM)")
+    .optional(),
 });
 
 async function evenementExisteDejaALaMemeHeure(
-  equipeId: string, 
+  equipeId: string,
   dateDebut: Date,
   evenementId: string,
   typeEvenement?: "MATCH" | "ENTRAINEMENT"
 ): Promise<boolean> {
-  const tolerance = 2; 
-  
+  const tolerance = 2;
+
   const dateDebutMoins = new Date(dateDebut);
   dateDebutMoins.setHours(dateDebutMoins.getHours() - tolerance);
-  
+
   const dateDebutPlus = new Date(dateDebut);
   dateDebutPlus.setHours(dateDebutPlus.getHours() + tolerance);
-  
+
   const where: Prisma.EvenementWhereInput = {
     equipeId,
-    id: { not: evenementId }, 
+    id: { not: evenementId },
     dateDebut: {
       gte: dateDebutMoins,
-      lte: dateDebutPlus
-    }
+      lte: dateDebutPlus,
+    },
   };
-  
+
   if (typeEvenement) {
     where.typeEvenement = typeEvenement;
   }
 
   const evenementsExistants = await prisma.evenement.findMany({
     where,
-    select: { id: true, titre: true, dateDebut: true }
+    select: { id: true, titre: true, dateDebut: true },
   });
-  
+
   return evenementsExistants.length > 0 ? true : false;
 }
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { idEquipe: string, idevenement: string } }
+  { params }: { params: { idEquipe: string; idevenement: string } }
 ) {
   try {
     const { idEquipe, idevenement } = await params;
-    
+
     const membreEquipe = await prisma.membreEquipe.findFirst({
       where: {
         equipeId: idEquipe,
         userId: idUtilisateur,
-        role: { in: ["ENTRAINEUR", "JOUEUR"] }
+        role: { in: ["ENTRAINEUR", "JOUEUR"] },
       },
     });
 
@@ -79,16 +84,16 @@ export async function GET(
     }
 
     const evenement = await prisma.evenement.findUnique({
-      where: { 
+      where: {
         id: idevenement,
-        equipeId: idEquipe 
+        equipeId: idEquipe,
       },
       include: {
         presences: {
           where: { userId: idUtilisateur },
-          select: { id: true, statut: true }
-        }
-      }
+          select: { id: true, statut: true },
+        },
+      },
     });
 
     if (!evenement) {
@@ -98,11 +103,12 @@ export async function GET(
       );
     }
 
- 
     const evenementFormate = {
       ...evenement,
-      dateDebutFormatee: dayjs(evenement.dateDebut).format("dddd D MMMM YYYY à HH:mm"),
-      maPresence: evenement.presences[0] || null
+      dateDebutFormatee: dayjs(evenement.dateDebut).format(
+        "dddd D MMMM YYYY à HH:mm"
+      ),
+      maPresence: evenement.presences[0] || null,
     };
 
     return NextResponse.json(evenementFormate);
@@ -117,12 +123,11 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { idEquipe: string, idevenement: string } }
+  { params }: { params: { idEquipe: string; idevenement: string } }
 ) {
   try {
     const { idEquipe, idevenement } = params;
 
- 
     const membreEquipe = await prisma.membreEquipe.findFirst({
       where: {
         equipeId: idEquipe,
@@ -137,13 +142,13 @@ export async function PATCH(
         { status: 403 }
       );
     }
-e
+    e;
     const evenement = await prisma.evenement.findUnique({
-      where: { 
+      where: {
         id: idevenement,
-        equipeId: idEquipe
+        equipeId: idEquipe,
       },
-      select: { typeEvenement: true, dateDebut: true }
+      select: { typeEvenement: true, dateDebut: true },
     });
 
     if (!evenement) {
@@ -153,10 +158,9 @@ e
       );
     }
 
-
     const body = await req.json();
     const parsedData = updateEvenementSchema.safeParse(body);
-    
+
     if (!parsedData.success) {
       return NextResponse.json(
         { error: "Données invalides", details: parsedData.error.format() },
@@ -165,48 +169,50 @@ e
     }
 
     const updateData: Prisma.EvenementUpdateInput = {};
-    
+
     if (parsedData.data.titre) updateData.titre = parsedData.data.titre;
-    if (parsedData.data.description !== undefined) updateData.description = parsedData.data.description;
-    if (parsedData.data.lieu !== undefined) updateData.lieu = parsedData.data.lieu;
-    if (parsedData.data.typeEvenement) updateData.typeEvenement = parsedData.data.typeEvenement;
-    
+    if (parsedData.data.description !== undefined)
+      updateData.description = parsedData.data.description;
+    if (parsedData.data.lieu !== undefined)
+      updateData.lieu = parsedData.data.lieu;
+    if (parsedData.data.typeEvenement)
+      updateData.typeEvenement = parsedData.data.typeEvenement;
+
     let nouvelleDate = evenement.dateDebut;
-    
+
     if (parsedData.data.date || parsedData.data.heure) {
       const dateActuelle = dayjs(evenement.dateDebut);
       let nouvelleDateObj = dateActuelle;
-      
+
       if (parsedData.data.date) {
         nouvelleDateObj = dayjs(parsedData.data.date)
           .hour(dateActuelle.hour())
           .minute(dateActuelle.minute());
       }
-      
+
       if (parsedData.data.heure) {
         const [heures, minutes] = parsedData.data.heure.split(":").map(Number);
-        nouvelleDateObj = nouvelleDateObj
-          .hour(heures)
-          .minute(minutes);
+        nouvelleDateObj = nouvelleDateObj.hour(heures).minute(minutes);
       }
-      
+
       nouvelleDate = nouvelleDateObj.toDate();
-      
-      const typeEvenement = parsedData.data.typeEvenement || evenement.typeEvenement;
+
+      const typeEvenement =
+        parsedData.data.typeEvenement || evenement.typeEvenement;
       const evenementExiste = await evenementExisteDejaALaMemeHeure(
-        idEquipe, 
-        nouvelleDate, 
-        idevenement, 
+        idEquipe,
+        nouvelleDate,
+        idevenement,
         typeEvenement as "MATCH" | "ENTRAINEMENT"
       );
-      
+
       if (evenementExiste) {
         return NextResponse.json(
-          { 
+          {
             error: "Un événement existe déjà à une heure proche",
-            message: `Un ${typeEvenement === "MATCH" ? "match" : "entraînement"} est déjà programmé autour de cette heure. Veuillez choisir un autre horaire.`
+            message: `Un ${typeEvenement === "MATCH" ? "match" : "entraînement"} est déjà programmé autour de cette heure. Veuillez choisir un autre horaire.`,
           },
-          { status: 409 } 
+          { status: 409 }
         );
       }
       updateData.dateDebut = nouvelleDate;
@@ -217,13 +223,15 @@ e
         where: { id: idevenement },
         data: updateData,
       });
-      
+
       return updatedEvent;
     });
 
     const evenementFormate = {
       ...evenementMisAJour,
-      dateDebutFormatee: dayjs(evenementMisAJour.dateDebut).format("dddd D MMMM YYYY à HH:mm")
+      dateDebutFormatee: dayjs(evenementMisAJour.dateDebut).format(
+        "dddd D MMMM YYYY à HH:mm"
+      ),
     };
 
     return NextResponse.json(evenementFormate);
@@ -236,10 +244,9 @@ e
   }
 }
 
-
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { idEquipe: string, idevenement: string } }
+  { params }: { params: { idEquipe: string; idevenement: string } }
 ) {
   try {
     const { idEquipe, idevenement } = params;
@@ -260,11 +267,11 @@ export async function DELETE(
     }
 
     const evenement = await prisma.evenement.findUnique({
-      where: { 
+      where: {
         id: idevenement,
-        equipeId: idEquipe
+        equipeId: idEquipe,
       },
-      select: { titre: true }
+      select: { titre: true },
     });
 
     if (!evenement) {
@@ -276,25 +283,25 @@ export async function DELETE(
 
     await prisma.$transaction(async (tx) => {
       await tx.presence.deleteMany({
-        where: { evenementId: idevenement }
+        where: { evenementId: idevenement },
       });
 
       await tx.statistiqueJoueur.deleteMany({
-        where: { evenementId: idevenement }
+        where: { evenementId: idevenement },
       });
 
       await tx.statistiqueEquipe.deleteMany({
-        where: { evenementId: idevenement }
+        where: { evenementId: idevenement },
       });
 
       await tx.evenement.delete({
-        where: { id: idevenement }
+        where: { id: idevenement },
       });
     });
 
     return NextResponse.json({
       success: true,
-      message: `L'événement "${evenement.titre}" a été supprimé avec succès`
+      message: `L'événement "${evenement.titre}" a été supprimé avec succès`,
     });
   } catch (error) {
     console.error("Erreur lors de la suppression de l'événement:", error);

@@ -1,5 +1,7 @@
+// app/api/equipes/[id]/membres/route.ts
 import { prisma } from "@/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { verifierEquipeEtMembre } from "../../../../(middleware)/VérifierEquipeetMembreEquipe";
 
 interface RouteParams {
   params: { id: string };
@@ -7,37 +9,15 @@ interface RouteParams {
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
-  const idUtilisateur = "cm7otmoce0002irmoe5qxpl6x";
+  const idUtilisateur = "cm7q0n4gp0000irv8pjkj764m";
+
+  const { error } = await verifierEquipeEtMembre(id , idUtilisateur);
+
+  if (error) {
+    return error;
+  }
 
   try {
-    const equipe = await prisma.equipe.findUnique({
-      where: { id },
-    });
-
-    if (!equipe) {
-      return NextResponse.json(
-        { message: "Équipe non trouvée" },
-        { status: 404 }
-      );
-    }
-
-    const membreEquipe = await prisma.membreEquipe.findFirst({
-      where: {
-        userId: idUtilisateur,
-        equipeId: id,
-      },
-    });
-
-    if (!membreEquipe) {
-      return NextResponse.json(
-        {
-          message:
-            "Seuls les membres de cette équipe peuvent accéder à ces données",
-        },
-        { status: 403 }
-      );
-    }
-
     const equipeComplete = await prisma.equipe.findUnique({
       where: { id },
       include: {
