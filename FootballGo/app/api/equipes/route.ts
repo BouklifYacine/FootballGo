@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const session = await auth();
 
   if (!session?.user?.id)

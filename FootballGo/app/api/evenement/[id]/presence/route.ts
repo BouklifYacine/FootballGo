@@ -3,7 +3,6 @@ import { prisma } from "@/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   const { id } = await params;
@@ -64,7 +63,7 @@ export async function GET(
     const ReponsePresence = presences.map((presence) => ({
       ...presence.evenement,
       ...presence.user,
-      statut: presence.statut,
+      statut: presence.statut
     }));
     return NextResponse.json(ReponsePresence);
   } catch (error) {

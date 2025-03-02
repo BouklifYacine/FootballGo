@@ -199,22 +199,19 @@ enum StatutPresence {
 }
 
 model StatistiqueJoueur {
-  id            String @id @default(cuid())
-  buts          Int    @default(0)
-  passes        Int    @default(0)
-  minutesJouees Int    @default(0)
-  cartonJaune   Int    @default(0)
-  cartonRouge   Int    @default(0)
-  note          Float?
+  id             String @id @default(cuid())
+  buts           Int    @default(0)
+  passesdécisive Int    @default(0)
+  note           Float  @default(6.0)
 
-  titulaire    Boolean      @default(false)
-  poste        PosteJoueur?
-  dateCreation DateTime     @default(now())
+  titulaire      Boolean     @default(false)
+  poste          PosteJoueur
+  dateCreation   DateTime    @default(now())
 
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      String
-  evenement   Evenement @relation(fields: [evenementId], references: [id], onDelete: Cascade)
-  evenementId String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  evenement      Evenement @relation(fields: [evenementId], references: [id], onDelete: Cascade)
+  evenementId    String
 
   @@unique([userId, evenementId])
 }
@@ -222,19 +219,17 @@ model StatistiqueJoueur {
 model StatistiqueEquipe {
   id String @id @default(cuid())
 
-  resultatMatch ResultatMatch?
-  butsMarques   Int            @default(0)
-  butsEncaisses Int            @default(0)
-  cleanSheet    Boolean        @default(false)
-  possession    Int?
+  resultatMatch ResultatMatch
+  butsMarques   Int           @default(0)
+  butsEncaisses Int           @default(0)
+  cleanSheet    Boolean       @default(false)
   tirsTotal     Int?
   tirsCadres    Int?
-  corners       Int?
 
-  domicile     Boolean  @default(true)
-  competition  String?
-  adversaire   String?
-  dateCreation DateTime @default(now())
+  domicile     Boolean     @default(true)
+  competition  competition @default(CHAMPIONNAT)
+  adversaire   String
+  dateCreation DateTime    @default(now())
 
   equipe      Equipe     @relation(fields: [equipeId], references: [id], onDelete: Cascade)
   equipeId    String
@@ -248,4 +243,9 @@ enum ResultatMatch {
   VICTOIRE
   DEFAITE
   MATCH_NUL
+}
+
+enum competition {
+  CHAMPIONNAT
+  COUPE
 }

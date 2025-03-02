@@ -5,7 +5,7 @@ interface RouteParams {
   params: { id: string };
 }
 
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET( { params }: RouteParams) {
   const { id } = await params;
   const idUtilisateur = "cm7q0n4gp0000irv8pjkj764m";
 
@@ -146,7 +146,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
+export async function DELETE( { params }: RouteParams) {
   const { id } = await params;
   const idUtilisateur = "cm7oz4qau0000irj0fl31bdp9";
 

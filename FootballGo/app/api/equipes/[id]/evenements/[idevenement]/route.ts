@@ -142,7 +142,7 @@ export async function PATCH(
         { status: 403 }
       );
     }
-    e;
+    
     const evenement = await prisma.evenement.findUnique({
       where: {
         id: idevenement,
