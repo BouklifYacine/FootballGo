@@ -43,9 +43,16 @@ export async function GET(
       include: {
         user: {
           select: {
-            id: true,
             name: true,
             image: true,
+          },
+        },
+        evenement: {
+          select: {
+            titre: true,
+            typeEvenement: true,
+            description: true,
+            lieu: true,
           },
         },
       },
@@ -54,7 +61,12 @@ export async function GET(
       },
     });
 
-    return NextResponse.json(presences);
+    const ReponsePresence = presences.map((presence) => ({
+      ...presence.evenement,
+      ...presence.user,
+      statut: presence.statut,
+    }));
+    return NextResponse.json(ReponsePresence);
   } catch (error) {
     console.error("Erreur lors de la récupération des présences:", error);
     return NextResponse.json({ message: "Erreur serveur" }, { status: 500 });
