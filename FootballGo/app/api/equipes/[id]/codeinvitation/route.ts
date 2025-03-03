@@ -5,9 +5,9 @@ interface RouteParams {
   params: { id: string };
 }
 
-export async function GET( { params }: RouteParams) {
+export async function GET(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
-  const idUtilisateur = "cm7q0n4gp0000irv8pjkj764m";
+  const idUtilisateur = "cm7stg4000000irowgylbnkpq";
 
   try {
     const equipe = await prisma.equipe.findUnique({
@@ -40,10 +40,12 @@ export async function GET( { params }: RouteParams) {
     }
 
     if (equipe.codeInvitation) {
-      return NextResponse.json({
-        message: `Code d'invitation existant pour l'équipe ${equipe.nom}`,
-        codeInvitation: equipe.codeInvitation,
-      });
+      return NextResponse.json(
+        {
+          message: `Le code d'invitation existe déja pour l'équipe ${equipe.nom}`,
+        },
+        { status: 400 }
+      );
     } else {
       const codeInvitation = Math.floor(
         100000 + Math.random() * 900000
@@ -70,7 +72,7 @@ export async function GET( { params }: RouteParams) {
 
 export async function POST(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
-  const idUtilisateur = "cm7q1lb7x0007irv8o4w89ao8";
+  const idUtilisateur = "cm7sthoee0001irowu7bczcjg";
   try {
     const { codeInvitation } = await request.json();
 
@@ -134,7 +136,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       });
     });
 
-    return NextResponse.json({message: `Vous avez rejoins l'équipe ${nomEquipe}.`},{ status: 200 });
+    return NextResponse.json(
+      { message: `Vous avez rejoins l'équipe ${nomEquipe}.` },
+      { status: 200 }
+    );
   } catch (error) {
     console.log(error);
     return NextResponse.json(
@@ -146,7 +151,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-export async function DELETE( { params }: RouteParams) {
+export async function DELETE({ params }: RouteParams) {
   const { id } = await params;
   const idUtilisateur = "cm7oz4qau0000irj0fl31bdp9";
 
