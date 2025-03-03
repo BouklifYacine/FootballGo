@@ -11,7 +11,7 @@ interface RouteParams {
 }
 
 dayjs.locale("fr");
-const idUtilisateur = "cm7sthoee0001irowu7bczcjg";
+const idUtilisateur = "cm7stg4000000irowgylbnkpq";
 
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   const { id, joueurId } = await params;

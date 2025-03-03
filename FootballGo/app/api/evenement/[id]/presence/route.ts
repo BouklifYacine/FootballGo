@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   const { id } = await params;
-  const idUtilisateur = "cm7q0n4gp0000irv8pjkj764m";
+  const idUtilisateur = "cm7sthoee0001irowu7bczcjg";
 
   try {
     const evenement = await prisma.evenement.findUnique({
@@ -77,7 +77,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   const { id } = await params;
-  const idUtilisateur = "cm7q0n4gp0000irv8pjkj764m";
+  const idUtilisateur = "cm7stg4000000irowgylbnkpq";
 
   try {
     const body = await req.json();
