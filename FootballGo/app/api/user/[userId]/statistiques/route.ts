@@ -8,7 +8,7 @@ interface RouteParams {
 const idUtilisateurConnecte = "cm7sthoee0001irowu7bczcjg";
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
-  const { userId } = await params;
+  const { userId } = params;
   
   try {
     const utilisateur = await prisma.user.findUnique({
@@ -24,14 +24,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     if (userId !== idUtilisateurConnecte) {
-    
       if (!utilisateur.membreEquipe) {
         return NextResponse.json(
           { message: "Cet utilisateur n'appartient à aucune équipe" },
           { status: 403 }
         );
       }
-
 
       const membreMemeEquipe = await prisma.membreEquipe.findFirst({
         where: {
@@ -69,16 +67,36 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const totalButs = statistiquesJoueur.reduce((sum, stat) => sum + stat.buts, 0);
     const totalPasses = statistiquesJoueur.reduce((sum, stat) => sum + stat.passesdécisive, 0);
     const matchsTitulaire = statistiquesJoueur.filter(stat => stat.titulaire).length;
-    const GA = totalButs + totalPasses
-    const Ga_Match = GA / totalMatchs
+    const GA_TOTAL = totalButs + totalPasses;
+    
+   
+let tempsJeuTotal = 0;
+statistiquesJoueur.forEach(stat => {
+
+  if (stat.minutesJouees && stat.minutesJouees > 0) {
+    tempsJeuTotal += stat.minutesJouees;
+  } else {
+
+    tempsJeuTotal += stat.titulaire ? 90 : 30;
+  }
+});
+
+    const butsParMinute = tempsJeuTotal > 0 ? totalButs / tempsJeuTotal : 0;
+    const passesParMinute = tempsJeuTotal > 0 ? totalPasses / tempsJeuTotal : 0;
+
+    const butsPar90 = butsParMinute * 90;
+    const passesPar90 = passesParMinute * 90;
+    const GAPar90 = (butsParMinute + passesParMinute) * 90;
+    
+    const arrondir = (nombre : number) => Math.round(nombre * 100) / 100;
+    
+    const GA_Match = totalMatchs > 0 ? arrondir(GA_TOTAL / totalMatchs) : 0;
     
     let noteMoyenne = 0;
     if (totalMatchs > 0) {
       noteMoyenne = statistiquesJoueur.reduce((sum, stat) => sum + stat.note, 0) / totalMatchs;
-    
-      noteMoyenne = Math.round(noteMoyenne * 100) / 100;
+      noteMoyenne = arrondir(noteMoyenne);
     }
-
 
     const statsParPoste = {
       GARDIEN: 0,
@@ -103,8 +121,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         totalPasses,
         matchsTitulaire,
         noteMoyenne,
-        GA,
-        Ga_Match
+        GA_TOTAL,
+        GA_Match,
+        tempsJeuTotal,
+        butsPar90: arrondir(butsPar90),
+        passesPar90: arrondir(passesPar90),
+        GAPar90: arrondir(GAPar90)
       },
       statsParPoste,
       detailMatchs: statistiquesJoueur.map(stat => ({
@@ -116,7 +138,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         passes: stat.passesdécisive,
         note: stat.note,
         poste: stat.poste,
-        titulaire: stat.titulaire
+        titulaire: stat.titulaire,
+        minutesJouees: stat.minutesJouees || (stat.titulaire ? 90 : 30)
       }))
     };
 
