@@ -7,7 +7,7 @@ export const StatistiqueJoueurSchema = z.object({
     minutesJouees: z.number().int().min(0).default(0),
     cartonJaune: z.number().int().min(0).default(0),
     cartonRouge: z.number().int().min(0).default(0),
-    note: z.number().min(0).max(10).optional(),
+    note: z.number().min(0).max(10),
     titulaire: z.boolean().default(false),
     poste: z.enum(["GARDIEN", "DEFENSEUR", "MILIEU", "ATTAQUANT"]).optional(),
   });

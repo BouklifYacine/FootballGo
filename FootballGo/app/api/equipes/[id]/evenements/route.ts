@@ -13,14 +13,14 @@ import { Prisma } from "@prisma/client";
 
 dayjs.locale("fr");
 
-const idUtilisateur = "cm7q0n4gp0000irv8pjkj764m";
+const idUtilisateur = "cm7stg4000000irowgylbnkpq";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const equipeId = params.id;
+    const equipeId = await params.id;
 
     // Vérification du rôle d'entraîneur avec l'ID codé en dur
     const membreEquipe = await prisma.membreEquipe.findFirst({
@@ -315,7 +315,7 @@ export async function GET(
   { params }: { params: { idEquipe: string } }
 ) {
   try {
-    const equipeId = params.idEquipe;
+    const equipeId = await params.idEquipe;
 
     const membreEquipe = await prisma.membreEquipe.findFirst({
       where: {
