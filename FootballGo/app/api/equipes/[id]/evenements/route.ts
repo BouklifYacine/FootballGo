@@ -15,61 +15,6 @@ dayjs.locale("fr");
 
 const idUtilisateur = "cm7stg4000000irowgylbnkpq";
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const equipeId = await params.id;
-
-    // Vérification du rôle d'entraîneur avec l'ID codé en dur
-    const membreEquipe = await prisma.membreEquipe.findFirst({
-      where: {
-        equipeId,
-        userId: idUtilisateur,
-        role: "ENTRAINEUR",
-      },
-    });
-
-    if (!membreEquipe) {
-      return NextResponse.json(
-        { error: "Seuls les entraîneurs peuvent créer des événements" },
-        { status: 403 }
-      );
-    }
-
-    // Validation des données avec ZOD
-    const body = await req.json();
-    const resultatValidation = evenementSchema.safeParse(body);
-
-    if (!resultatValidation.success) {
-      // Retourner les erreurs de validation de manière lisible
-      return NextResponse.json(
-        {
-          error: "Données invalides",
-          details: resultatValidation.error.format(),
-        },
-        { status: 400 }
-      );
-    }
-
-    const donnees = resultatValidation.data;
-
-    // Création des événements (unique ou récurrents)
-    if (donnees.recurrent === true) {
-      return await creerEvenementsRecurrents(donnees, equipeId);
-    } else {
-      return await creerEvenementUnique(donnees, equipeId);
-    }
-  } catch (error) {
-    console.error("Erreur lors de la création de l'événement:", error);
-    return NextResponse.json(
-      { error: "Erreur lors de la création de l'événement" },
-      { status: 500 }
-    );
-  }
-}
-
 async function evenementExisteDejaALaMemeHeure(
   equipeId: string,
   dateDebut: Date,
@@ -305,6 +250,61 @@ async function creerEvenementsRecurrents(
     );
     return NextResponse.json(
       { error: "Erreur lors de la création des événements récurrents" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const equipeId = await params.id;
+
+    // Vérification du rôle d'entraîneur avec l'ID codé en dur
+    const membreEquipe = await prisma.membreEquipe.findFirst({
+      where: {
+        equipeId,
+        userId: idUtilisateur,
+        role: "ENTRAINEUR",
+      },
+    });
+
+    if (!membreEquipe) {
+      return NextResponse.json(
+        { error: "Seuls les entraîneurs peuvent créer des événements" },
+        { status: 403 }
+      );
+    }
+
+    // Validation des données avec ZOD
+    const body = await req.json();
+    const resultatValidation = evenementSchema.safeParse(body);
+
+    if (!resultatValidation.success) {
+      // Retourner les erreurs de validation de manière lisible
+      return NextResponse.json(
+        {
+          error: "Données invalides",
+          details: resultatValidation.error.format(),
+        },
+        { status: 400 }
+      );
+    }
+
+    const donnees = resultatValidation.data;
+
+    // Création des événements (unique ou récurrents)
+    if (donnees.recurrent === true) {
+      return await creerEvenementsRecurrents(donnees, equipeId);
+    } else {
+      return await creerEvenementUnique(donnees, equipeId);
+    }
+  } catch (error) {
+    console.error("Erreur lors de la création de l'événement:", error);
+    return NextResponse.json(
+      { error: "Erreur lors de la création de l'événement" },
       { status: 500 }
     );
   }
