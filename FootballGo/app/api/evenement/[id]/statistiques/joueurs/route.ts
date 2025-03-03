@@ -56,6 +56,21 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       { status: 403 }
     );
 
+    const joueurPresent = await prisma.presence.findFirst({
+        where: {
+          userId: idUtilisateur,
+          evenementId: id,
+          statut: "PRESENT"
+        }
+      });
+
+      if (!joueurPresent) {
+        return NextResponse.json(
+          { message: "Vous n'êtes pas marqué comme présent à ce match" },
+          { status: 403 }
+        );
+      }
+
   const statsExistantes = await prisma.statistiqueJoueur.findUnique({
     where: {
       userId_evenementId: {
