@@ -49,7 +49,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     where: {
       userId: idUtilisateur,
       equipeId: evenementMatch.equipeId,
-      role : "ENTRAINEUR"
+      role: "ENTRAINEUR",
     },
   });
 
@@ -76,8 +76,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
   const statsExistantes = await prisma.statistiqueEquipe.findFirst({
     where: {
-      evenementId: id
-    }
+      evenementId: id,
+    },
   });
 
   if (statsExistantes)
@@ -86,29 +86,71 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       { status: 400 }
     );
 
-    try {
-        const nouvellesStats = await prisma.statistiqueEquipe.create({
-          data: {
-            equipeId: evenementMatch.equipeId,
-            evenementId: id,
-            resultatMatch: body.resultatMatch,
-            butsMarques: body.butsMarques,
-            butsEncaisses: body.butsEncaisses,
-            cleanSheet: body.cleanSheet,
-            tirsTotal: body.tirsTotal,
-            tirsCadres: body.tirsCadres,
-            domicile: body.domicile,
-            competition: body.competition,
-            adversaire: body.adversaire
-          },
-        });
-    
-        return NextResponse.json(nouvellesStats, { status: 201 });
-      } catch (error) {
-        console.error("Erreur lors de l'enregistrement des statistiques:", error);
-        return NextResponse.json(
-          { message: "Erreur lors de l'enregistrement des statistiques" },
-          { status: 500 }
-        );
-      }
+  try {
+    const nouvellesStats = await prisma.statistiqueEquipe.create({
+      data: {
+        equipeId: evenementMatch.equipeId,
+        evenementId: id,
+        resultatMatch: body.resultatMatch,
+        butsMarques: body.butsMarques,
+        butsEncaisses: body.butsEncaisses,
+        cleanSheet: body.cleanSheet,
+        tirsTotal: body.tirsTotal,
+        tirsCadres: body.tirsCadres,
+        domicile: body.domicile,
+        competition: body.competition,
+        adversaire: body.adversaire,
+      },
+    });
+
+    return NextResponse.json(nouvellesStats, { status: 201 });
+  } catch (error) {
+    console.error("Erreur lors de l'enregistrement des statistiques:", error);
+    return NextResponse.json(
+      { message: "Erreur lors de l'enregistrement des statistiques" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(request: NextRequest, { params }: RouteParams) {
+  const { id } = await params;
+
+  const evenementMatch = await prisma.evenement.findUnique({
+    where: { id: id, typeEvenement: "MATCH" },
+    include: { equipe: true },
+  });
+
+  if (!evenementMatch)
+    return NextResponse.json(
+      { message: "L'événement n'existe pas ou c'est un entrainement" },
+      { status: 400 }
+    );
+
+  const membreEquipe = await prisma.membreEquipe.findFirst({
+    where: {
+      userId: idUtilisateur,
+      equipeId: evenementMatch.equipeId,
+    },
+  });
+
+  if (!membreEquipe)
+    return NextResponse.json(
+      { message: "Vous ne faites pas partie de cette équipe" },
+      { status: 403 }
+    );
+
+  const statsExistantes = await prisma.statistiqueEquipe.findFirst({
+    where: {
+      evenementId: id,
+    },
+  });
+
+  if (!statsExistantes)
+    return NextResponse.json(
+      { message: "Aucune données disponible pour ce match " },
+      { status: 400 }
+    );
+
+  return NextResponse.json(statsExistantes);
 }

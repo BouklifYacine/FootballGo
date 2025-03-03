@@ -10,6 +10,50 @@ interface RouteParams {
 dayjs.locale("fr");
 const idUtilisateur = "cm7sthoee0001irowu7bczcjg";
 
+
+export async function GET(request: NextRequest, { params }: RouteParams) {
+  const { id } = await params;
+
+  const evenementMatch = await prisma.evenement.findUnique({
+    where: { id: id, typeEvenement: "MATCH" },
+    include: { equipe: true },
+  });
+
+  if (!evenementMatch)
+    return NextResponse.json(
+      { message: "L'événement n'existe pas ou c'est un entrainement" },
+      { status: 400 }
+    );
+
+  const membreEquipe = await prisma.membreEquipe.findFirst({
+    where: {
+      userId: idUtilisateur,
+      equipeId: evenementMatch.equipeId,
+    },
+  });
+
+  if (!membreEquipe)
+    return NextResponse.json(
+      { message: "Vous ne faites pas partie de cette équipe" },
+      { status: 403 }
+    );
+
+  const statsExistantes = await prisma.statistiqueJoueur.findFirst({
+    where: {
+      evenementId: id,
+    },
+  });
+
+  if (!statsExistantes)
+    return NextResponse.json(
+      { message: "Aucune données disponible pour ce match " },
+      { status: 400 }
+    );
+
+  return NextResponse.json(statsExistantes);
+}
+
+
 export async function POST(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
   const body = await request.json();
