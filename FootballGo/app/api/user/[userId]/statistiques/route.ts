@@ -88,14 +88,14 @@ statistiquesJoueur.forEach(stat => {
     const passesPar90 = passesParMinute * 90;
     const GAPar90 = (butsParMinute + passesParMinute) * 90;
     
-    const arrondir = (nombre : number) => Math.round(nombre * 100) / 100;
     
-    const GA_Match = totalMatchs > 0 ? arrondir(GA_TOTAL / totalMatchs) : 0;
+    
+    const GA_Match = totalMatchs > 0 ? (GA_TOTAL / totalMatchs).toFixed(2) : 0;
     
     let noteMoyenne = 0;
     if (totalMatchs > 0) {
       noteMoyenne = statistiquesJoueur.reduce((sum, stat) => sum + stat.note, 0) / totalMatchs;
-      noteMoyenne = arrondir(noteMoyenne);
+      noteMoyenne = Number(noteMoyenne.toFixed(2));
     }
 
     const statsParPoste = {
@@ -124,9 +124,9 @@ statistiquesJoueur.forEach(stat => {
         GA_TOTAL,
         GA_Match,
         tempsJeuTotal,
-        butsPar90: arrondir(butsPar90),
-        passesPar90: arrondir(passesPar90),
-        GAPar90: arrondir(GAPar90)
+        butsPar90: butsPar90.toFixed(2),
+        passesPar90: passesPar90.toFixed(2),
+        GAPar90: GAPar90.toFixed(2)
       },
       statsParPoste,
       detailMatchs: statistiquesJoueur.map(stat => ({
