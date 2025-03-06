@@ -8,7 +8,7 @@ interface RouteParams {
 const idUtilisateurConnecte = "cm7sthoee0001irowu7bczcjg";
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
-  const { userId } = params;
+  const { userId } = await params;
   
   try {
     const utilisateur = await prisma.user.findUnique({
