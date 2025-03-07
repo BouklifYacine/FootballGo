@@ -29,9 +29,9 @@ const ClientConnexionFormulaire = () => {
   const onSubmit = async (data: Schema) => {
     try {
       const result = await connexionAction(data);
-      
+
       if (result.success) {
-        router.push("/");
+        router.push("/dashboardclient");
         router.refresh();
       } else {
         setErreurIdentifiant(result.error || "Une erreur est survenue");
@@ -45,9 +45,7 @@ const ClientConnexionFormulaire = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">
-          Email
-        </label>
+        <label className="block text-sm font-medium text-gray-700">Email</label>
         <div className="relative">
           <Mail
             className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -70,13 +68,11 @@ const ClientConnexionFormulaire = () => {
           Mot de passe
         </label>
         <div className="relative">
-         <Lock
-                     className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                     size={20}
-                   />
-        <InputPassword
-               {...register("password")}
-              />
+          <Lock
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            size={20}
+          />
+          <InputPassword {...register("password")} />
         </div>
         {errors.password && (
           <p className="text-red-500 text-xs">{errors.password.message}</p>
@@ -84,9 +80,7 @@ const ClientConnexionFormulaire = () => {
       </div>
 
       <div className="flex justify-end text-xs text-blue-600 hover:text-blue-700 underline">
-        <Link href="/connexion/motdepasseoublie">
-          Mot de passe oublié?
-        </Link>
+        <Link href="/connexion/motdepasseoublie">Mot de passe oublié?</Link>
       </div>
 
       <button
@@ -109,9 +103,7 @@ const ClientConnexionFormulaire = () => {
           <div className="w-full border-t border-gray-300"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white text-gray-500">
-            Ou continuer avec
-          </span>
+          <span className="px-2 bg-white text-gray-500">Ou continuer avec</span>
         </div>
       </div>
 
