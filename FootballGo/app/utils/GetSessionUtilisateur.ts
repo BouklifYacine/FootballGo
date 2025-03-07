@@ -21,6 +21,8 @@ export async function GetSessionUtilisateur() {
         name: true,
         email: true,
         image: true,
+        role : true,
+        plan : true
       },
     });
 

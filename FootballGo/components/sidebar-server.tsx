@@ -1,26 +1,36 @@
 
-
 import { GetSessionUtilisateur } from "@/app/utils/GetSessionUtilisateur";
 import { SidebarClient } from "@/components/sidebar-client";
-
-// Props pour les propriétés de la sidebar
 interface SidebarServeurProps {
   className?: string;
-  // Ajoutez d'autres props si nécessaire
 }
 
-// Composant serveur qui récupère les données et les passe au client
 export async function SidebarServeur({ className, ...props }: SidebarServeurProps) {
-  // Récupérer les données utilisateur avec votre fonction
   const utilisateur = await GetSessionUtilisateur();
   
-  // Préparer les données utilisateur pour le composant client
+  if (!utilisateur) {
+
+    return <SidebarClient 
+      userData={{
+        name: "Invité",
+        email: "",
+        avatar: "/avatars/default.jpg",
+      }}
+      className={className} 
+      {...props} 
+    />;
+  }
+  
   const donnéesUtilisateur = {
-    name: utilisateur?.name || "Utilisateur",
-    email: utilisateur?.email || "",
-    avatar: utilisateur?.image || "/avatars/default.jpg",
+    id: utilisateur.id,
+    name: utilisateur.name || "Utilisateur",
+    email: utilisateur.email || "",
+    avatar: utilisateur.image || "/avatars/default.jpg",
+    role: utilisateur.role || "utilisateur",
+    plan: utilisateur.plan || "free"
   };
   
-  // Passer les données au composant client
-  return <SidebarClient userData={donnéesUtilisateur} className={className} {...props} />;
+  return <SidebarClient 
+    userData={donnéesUtilisateur}  className={className}  {...props} 
+  />;
 }

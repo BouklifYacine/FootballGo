@@ -2,14 +2,14 @@ import { auth } from "@/auth";
 import { prisma } from "@/prisma";
 import { redirect } from "next/navigation";
 
-export async function SessionUtilisateur() {
+export async function ProtectionRouteAvecSession() {
   const session = await auth();
 
-  if (!session || !session.user) {
+  const SessionID = session?.user?.id;
+  
+  if (!session || !SessionID) {
     redirect("/connexion");
   }
-
-  const SessionID = session?.user?.id;
 
   const utilisateur = await prisma.user.findUnique({
     where: { id: SessionID },
@@ -17,5 +17,12 @@ export async function SessionUtilisateur() {
 
   if (!utilisateur) redirect("/");
 
-  return { utilisateur };
+  const infosuser = {
+    id: utilisateur.id,
+    nom: utilisateur.name,
+    email: utilisateur.email,
+    avatar: utilisateur.image,
+  };
+
+  return { infosuser };
 }

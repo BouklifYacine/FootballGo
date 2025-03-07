@@ -23,25 +23,29 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 
-// Type pour les données utilisateur
 interface UserData {
+  id?: string;
   name: string;
   email: string;
   avatar: string;
+  role?: string;
+  plan?: string;
 }
 
-// Props pour le composant client
 interface SidebarClientProps extends React.ComponentProps<typeof Sidebar> {
   userData: UserData;
 }
 
 export function SidebarClient({ userData, ...props }: SidebarClientProps) {
-  // Données avec les informations de l'utilisateur obtenues via Prisma
+
   const data = {
     user: {
+      id: userData.id,
       name: userData.name,
       email: userData.email,
-      avatar: userData.avatar, // Image de l'utilisateur de Prisma
+      avatar: userData.avatar,
+      role: userData.role,
+      plan: userData.plan,
     },
     teams: [
       {
@@ -138,7 +142,7 @@ export function SidebarClient({ userData, ...props }: SidebarClientProps) {
         ],
       },
       {
-        title: "Statisiques",
+        title: "Statistiques",
         url: "/statistiques",
         icon: BarChart2Icon,
         items: [

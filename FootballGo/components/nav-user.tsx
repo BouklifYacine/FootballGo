@@ -1,45 +1,48 @@
-"use client"
+"use client";
 
 import {
-  BadgeCheck,
-  Bell,
   ChevronsUpDown,
   CreditCard,
   LogOut,
-  Sparkles,
-} from "lucide-react"
+  Settings,
+  Shield,
+} from "lucide-react";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
+import Link from "next/link";
+import { signOut } from "next-auth/react";
 
-export function NavUser({
-  user,
-}: {
+interface NavUserProps {
   user: {
-    name: string
-    email: string
-    avatar: string
-  }
-}) {
-  const { isMobile } = useSidebar()
+    id?: string;
+    name: string;
+    email: string;
+    avatar: string;
+    role?: string;
+    plan?: string;
+  };
+}
+
+export function NavUser({ user }: NavUserProps) {
+  const { isMobile } = useSidebar();
+
+  const isAdmin = user.role === "Admin";
+
+  const isPro = user.plan === "pro";
 
   return (
     <SidebarMenu>
@@ -52,7 +55,9 @@ export function NavUser({
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarFallback className="rounded-lg">
+                  {user.name?.[0]?.toUpperCase() || "U"}
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{user.name}</span>
@@ -71,7 +76,9 @@ export function NavUser({
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">
+                    {user.name?.[0]?.toUpperCase() || "U"}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{user.name}</span>
@@ -80,35 +87,41 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
+
+            {isAdmin && (
               <DropdownMenuItem>
-                <Sparkles />
-                Upgrade to Pro
+                <Shield className="mr-2 h-4 w-4" />
+                <Link href="/dashboard">Dashboard Admin</Link>
               </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
+            )}
+
+            {isPro && (
               <DropdownMenuItem>
-                <BadgeCheck />
-                Account
+                <CreditCard className="mr-2 h-4 w-4" />
+                <Link
+                  href={
+                    process.env.NEXT_PUBLIC_STRIPE_CUSTOMER_PORTAL_URL || "#"
+                  }
+                >
+                  Abonnement
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
+            )}
+
             <DropdownMenuItem>
-              <LogOut />
-              Log out
+              <Settings className="mr-2 h-4 w-4" />
+              <Link href={`/parametres/${user.id || ""}`}>Paramètres</Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Déconnexion</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  )
+  );
 }
