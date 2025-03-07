@@ -47,15 +47,15 @@ export async function connexionAction(data: Schema) {
         redirectTo: "/dashboardclient"
       });
       
-      // Si nous arrivons ici (ce qui est peu probable), retournez le succès
+ 
       return { success: true };
     } catch (error: any) {
-      // Vérifiez si l'erreur est une redirection
+ 
       if (error?.message?.includes('NEXT_REDIRECT')) {
-        // C'est une redirection, c'est bon signe!
+
         return { success: true };
       }
-      // Si c'est une autre erreur, relancez-la
+
       throw error;
     }
   } catch (error) {
