@@ -4,17 +4,17 @@ import "./globals.css";
 import clsx from "clsx";
 import AuthProvider from "./auth/provider";
 import QueryProvider from "./(providers)/QueryProvider";
-import { Toaster } from 'react-hot-toast'
+import { Toaster } from "react-hot-toast";
 
 const dmSans = DM_Sans({
-  subsets: ["latin"], 
-  weight: ["400", "500", "700"], 
-
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
 });
 
 export const metadata: Metadata = {
   title: "FootDataGo",
-  description: "Récupérez et comparez la data des joueurs des 5 grands championnats",
+  description:
+    "Récupérez et comparez la data des joueurs des 5 grands championnats",
 };
 
 export default function RootLayout({
@@ -23,17 +23,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr" className="relative" suppressHydrationWarning> 
-      <body className={clsx(
-        dmSans.className, 
-        "antialiased " 
-      )}>
-        <QueryProvider>
-        <AuthProvider>
-        {children}
-        <Toaster position="top-center" />
-        </AuthProvider>
-        </QueryProvider>
+    <html lang="fr" className="relative" suppressHydrationWarning>
+      <body className={clsx(dmSans.className, "antialiased ")}>
+     
+          <QueryProvider>
+            <AuthProvider>
+              {children}
+              <Toaster position="top-center" />
+            </AuthProvider>
+          </QueryProvider>
+    
       </body>
     </html>
   );

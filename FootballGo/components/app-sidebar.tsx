@@ -57,10 +57,6 @@ const data = {
           title: "Vue d'ensemble",
           url: "/dashboard/overview",
         },
-        {
-          title: "Actualités",
-          url: "/dashboard/news",
-        },
       ],
     },
     {
