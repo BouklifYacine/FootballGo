@@ -9,14 +9,14 @@ const BoutonConnexionProviders = () => {
   const ConnexionGithub = async () => {
     await signIn("github", {
       redirect: true,
-      callbackUrl: "/",
+      callbackUrl: "/dashboardclient",
     });
   };
 
   const ConnexionGoogle = async () => {
     await signIn("google", {
       redirect: true,
-      callbackUrl: "/",
+      callbackUrl: "/dashboardclient",
     });
   };
 
