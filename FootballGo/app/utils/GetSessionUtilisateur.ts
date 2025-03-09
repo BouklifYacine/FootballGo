@@ -13,7 +13,6 @@ export async function GetSessionUtilisateur() {
       return null;
     }
 
-    // Récupérer l'utilisateur complet depuis Prisma
     const utilisateur = await prisma.user.findUnique({
       where: { id: SessionID },
       select: {

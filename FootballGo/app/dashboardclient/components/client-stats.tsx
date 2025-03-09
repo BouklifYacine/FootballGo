@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useClassementJoueurs } from "../(hooks)/UseDashboardClient";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 const PodiumRank = ({ rank }: { rank: number }) => {
   if (rank === 1) {
@@ -67,6 +69,11 @@ const NoteIndicator = ({ note }: { note: number }) => {
 
 export default function ClassementJoueurs() {
   const { data, isLoading, error } = useClassementJoueurs();
+  const [sectionjoueur , useSectionJoueur] = useState(false)
+
+  const AfficherSectionJoueur = () => {
+    useSectionJoueur(!sectionjoueur)
+  }
 
   if (error) {
     return (
@@ -79,7 +86,9 @@ export default function ClassementJoueurs() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-t-4 border-t-blue-500 shadow-lg">
+
+      <Button onClick={AfficherSectionJoueur}>{!sectionjoueur ? "Equipe" : "Joueur"}</Button>
+      {!sectionjoueur ? <Card className="border-t-4 border-t-blue-500 shadow-lg">
         <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 pb-2">
           <div className="flex items-center gap-2">
             <Trophy className="h-6 w-6 text-blue-500" />
@@ -232,7 +241,8 @@ export default function ClassementJoueurs() {
             </div>
           )}
         </CardContent>
-      </Card>
+      </Card> : <p> Statistiques équipes </p> }
+      
 
     </div>
   );
