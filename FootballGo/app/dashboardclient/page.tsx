@@ -5,9 +5,8 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ProtectionRouteAvecSession } from "../utils/SessionUtilisateur";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import ClientStats from "./components/client-stats";
+import InputCodeInvitation from "./components/InputCodeInvitation";
 
 export default async function DashboardPage() {
   await ProtectionRouteAvecSession();
@@ -22,20 +21,8 @@ export default async function DashboardPage() {
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          {/* Barre de code de validation */}
-          <div className="flex flex-wrap gap-4 items-center p-4 rounded-lg bg-background border shadow-sm">
-            <span className="text-sm font-medium">
-              Rentrez un code pour rejoindre une équipe :
-            </span>
-            <div className="flex flex-1 gap-2">
-              <Input type="text" placeholder="Code" className="max-w-xs" />
-              <Button variant="default" size="sm">
-                Rejoindre
-              </Button>
-            </div>
-            <Button variant="default">Créer une équipe</Button>
-          </div>
-
+      
+         <InputCodeInvitation></InputCodeInvitation>
           <ClientStats />
         </div>
       </SidebarInset>

@@ -1,6 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { StatsResponse } from "../(interface-types)/StatsJoueur";
+import { rejoindreEquipeCodeInvitation, RejoindreEquipeInput } from "../(server-actions)/DashboardClient-actions";
+import toast from "react-hot-toast";
 
 export function useClassementJoueurs() {
   return useQuery({
@@ -9,5 +11,36 @@ export function useClassementJoueurs() {
       const { data } = await axios.get<StatsResponse>("/api/statistiques/joueurs");
       return data;
     },
+  });
+}
+
+export function useRejoindreEquipeCodeInvitation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: RejoindreEquipeInput) => {
+      return await rejoindreEquipeCodeInvitation(data);
+    },
+    
+    onMutate: () => {
+      toast.loading("Traitement en cours...");
+    },
+    
+    onSuccess: (data) => {
+      toast.dismiss();
+      
+      if (data.success) {
+        toast.success(data.message);
+        queryClient.invalidateQueries({ queryKey: ["equipes"] });
+        queryClient.invalidateQueries({ queryKey: ["profile"] });
+      } else {
+        toast.error(data.message);
+      }
+    },
+    
+    onError: () => {
+      toast.dismiss();
+      toast.error("Une erreur est survenue");
+    }
   });
 }

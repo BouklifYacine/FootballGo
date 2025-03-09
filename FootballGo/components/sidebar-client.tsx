@@ -2,11 +2,9 @@
 
 import * as React from "react";
 import {
-  AudioWaveform,
   BarChart2Icon,
   CalendarIcon,
   ClipboardCheckIcon,
-  Command,
   GalleryVerticalEnd,
   HomeIcon,
   UsersIcon,
