@@ -22,7 +22,8 @@ export async function GetSessionUtilisateur() {
         email: true,
         image: true,
         role : true,
-        plan : true
+        plan : true,
+        roleEquipe : true 
       },
     });
 

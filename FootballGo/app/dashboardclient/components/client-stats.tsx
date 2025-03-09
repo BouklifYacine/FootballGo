@@ -4,7 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
-import { Trophy, Users, Award, Star, ArrowUp, Info, Volleyball } from "lucide-react";
+import {
+  Trophy,
+  Users,
+  Award,
+  Star,
+  ArrowUp,
+  Info,
+  Volleyball,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useClassementJoueurs } from "../(hooks)/UseDashboardClient";
 
@@ -12,26 +20,25 @@ const PodiumRank = ({ rank }: { rank: number }) => {
   if (rank === 1) {
     return (
       <Badge className="bg-yellow-500 hover:bg-yellow-600 px-2 py-1 text-black font-bold">
-        1 🏆
+        1
       </Badge>
     );
   } else if (rank === 2) {
     return (
       <Badge className="bg-gray-300 hover:bg-gray-400 px-2 py-1 text-black font-bold">
-        2 🥈
+        2
       </Badge>
     );
   } else if (rank === 3) {
     return (
       <Badge className="bg-amber-600 hover:bg-amber-700 px-2 py-1 text-black font-bold">
-        3 🥉
+        3
       </Badge>
     );
   }
   return <span className="text-sm font-medium">{rank}</span>;
 };
 
-// Composant d'indicateur de note
 const NoteIndicator = ({ note }: { note: number }) => {
   let color = "bg-gray-200";
 
@@ -227,116 +234,6 @@ export default function ClassementJoueurs() {
         </CardContent>
       </Card>
 
-      {/* Version mobile - affichage sous forme de cartes */}
-      <div className="sm:hidden">
-        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-          <Trophy className="h-5 w-5 text-blue-500" />
-          Classement des Joueurs
-        </h2>
-
-        {isLoading ? (
-          <div className="space-y-4">
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-32 w-full" />
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {data?.classement.slice(0, 20).map((joueur, index) => (
-              <Card
-                key={joueur.joueur.id}
-                className={`
-                overflow-hidden
-                ${index < 3 ? "border-l-4 border-blue-500 shadow-md" : ""}
-              `}
-              >
-                <CardContent className="p-0">
-                  <div className="bg-gradient-to-r from-slate-50 to-blue-50 p-3 flex items-center gap-3 border-b">
-                    <PodiumRank rank={index + 1} />
-                    <Avatar className="h-10 w-10 border-2 border-white shadow">
-                      <AvatarImage
-                        src={joueur.joueur.image || undefined}
-                        alt={joueur.joueur.nom}
-                      />
-                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
-                        {joueur.joueur.nom.substring(0, 2)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <div className="font-semibold">{joueur.joueur.nom}</div>
-                      <div className="text-sm text-muted-foreground flex items-center gap-1">
-                        {joueur.equipe?.nom || "Sans équipe"}
-                        {joueur.equipe?.logoUrl && (
-                          <Image
-                            src={joueur.equipe.logoUrl}
-                            alt={joueur.equipe.nom}
-                            width={16}
-                            height={16}
-                            className="h-4 w-4 ml-1"
-                          />
-                        )}
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-sm text-blue-700 font-bold">G+A</div>
-                      <div className="text-xl font-bold text-blue-700">
-                        {joueur.stats.GA}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-2 text-center p-3">
-                    <div className="p-2 rounded-md bg-slate-50">
-                      <div className="text-xs text-slate-500 flex items-center justify-center gap-1 mb-1">
-                        <Volleyball className="h-3 w-3" />
-                        <span>Buts</span>
-                      </div>
-                      <div className="font-semibold">
-                        {joueur.stats.totalButs}
-                      </div>
-                    </div>
-                    <div className="p-2 rounded-md bg-slate-50">
-                      <div className="text-xs text-slate-500 flex items-center justify-center gap-1 mb-1">
-                        <Award className="h-3 w-3" />
-                        <span>Passes</span>
-                      </div>
-                      <div className="font-semibold">
-                        {joueur.stats.totalPasses}
-                      </div>
-                    </div>
-                    <div className="p-2 rounded-md bg-slate-50">
-                      <div className="text-xs text-slate-500 flex items-center justify-center gap-1 mb-1">
-                        <Users className="h-3 w-3" />
-                        <span>Matchs</span>
-                      </div>
-                      <div className="font-semibold">
-                        {joueur.stats.totalMatchs}
-                      </div>
-                    </div>
-                    <div className="p-2 rounded-md bg-slate-50 col-span-2">
-                      <div className="text-xs text-slate-500 mb-1">
-                        G+A par match
-                      </div>
-                      <div className="font-semibold">
-                        {joueur.stats.GA_Match.toFixed(1)}
-                      </div>
-                    </div>
-                    <div className="p-2 rounded-md bg-slate-50">
-                      <div className="text-xs text-slate-500 flex items-center justify-center gap-1 mb-1">
-                        <Star className="h-3 w-3" />
-                        <span>Note</span>
-                      </div>
-                      <div className="flex justify-center">
-                        <NoteIndicator note={joueur.stats.noteMoyenne} />
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   );
 }

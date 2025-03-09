@@ -27,7 +27,8 @@ export async function SidebarServeur({ className, ...props }: SidebarServeurProp
     email: utilisateur.email || "",
     avatar: utilisateur.image || "/avatars/default.jpg",
     role: utilisateur.role || "utilisateur",
-    plan: utilisateur.plan || "free"
+    plan: utilisateur.plan || "free",
+    roleEquipe: utilisateur.roleEquipe || "SANSCLUB" 
   };
   
   return <SidebarClient 
