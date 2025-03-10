@@ -17,7 +17,7 @@ const ClassementEquipe: React.FC<ClassementEquipeProps> = ({ data, isLoading, er
         return (
           <div className="p-4 bg-red-50 text-red-600 rounded-md border border-red-200 flex items-center gap-2">
             <Info className="h-5 w-5" />
-            <span>Erreur: {(erreurequipes as Error).message}</span>
+            <span>Erreur: {erreurequipes.message}</span>
           </div>
         );
       }

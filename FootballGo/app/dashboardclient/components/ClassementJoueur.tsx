@@ -32,7 +32,7 @@ const ClassementJoueur: React.FC<ClassementJoueurProps> = ({
     return (
       <div className="p-4 bg-red-50 text-red-600 rounded-md border border-red-200 flex items-center gap-2">
         <Info className="h-5 w-5" />
-        <span>Erreur: {(error as Error).message}</span>
+        <span>Erreur: {error.message}</span>
       </div>
     );
   }

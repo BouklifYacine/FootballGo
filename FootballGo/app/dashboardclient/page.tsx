@@ -7,9 +7,11 @@ import {
 import { ProtectionRouteAvecSession } from "../utils/SessionUtilisateur";
 import ClientStats from "./components/client-stats";
 import InputCodeInvitation from "./components/InputCodeInvitation";
+import { RoleJoueurEquipe } from "@/lib/RoleJoueurEquipe";
 
 export default async function DashboardPage() {
   await ProtectionRouteAvecSession();
+  const utilisateur = await RoleJoueurEquipe()
 
   return (
     <SidebarProvider>
@@ -21,7 +23,7 @@ export default async function DashboardPage() {
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <InputCodeInvitation></InputCodeInvitation>
+          <InputCodeInvitation utilisateur={utilisateur} />
           <ClientStats />
         </div>
       </SidebarInset>

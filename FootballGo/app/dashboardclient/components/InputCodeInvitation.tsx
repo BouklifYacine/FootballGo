@@ -8,12 +8,18 @@ import { Loader2 } from "lucide-react";
 import { useRejoindreEquipeCodeInvitation } from "../(hooks)/UseDashboardClient";
 import Link from "next/link";
 import { RejoindreEquipeSchema } from "@/app/(schema)/SchemaEquipe";
+import { RoleJoueurEquipetype } from "@/lib/RoleJoueurEquipe";
 
 type FormValues = {
   codeInvitation: string;
 };
 
-const InputCodeInvitation = () => {
+interface InputCodeInvitationProps {
+  utilisateur: RoleJoueurEquipetype ;
+}
+
+const InputCodeInvitation = ({utilisateur} : InputCodeInvitationProps) => {
+
   const {
     register,
     handleSubmit,
@@ -37,6 +43,10 @@ const InputCodeInvitation = () => {
       },
     });
   };
+
+  if ( utilisateur.roleEquipe !== "SANSCLUB") {
+    return null;
+  }
 
   return (
     <div className="flex flex-col sm:flex-row flex-wrap gap-4 p-4 rounded-lg bg-background border shadow-sm">

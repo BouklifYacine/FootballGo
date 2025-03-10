@@ -1,6 +1,6 @@
 import { GetSessionUtilisateur } from "@/app/utils/GetSessionUtilisateur";
 
-type RoleJoueurEquipe = {
+export type RoleJoueurEquipetype = {
   id: string;
   name: string;
   email: string;
@@ -15,7 +15,7 @@ export async function RoleJoueurEquipe() {
 
   if (!utilisateur) return {error : "Pas connecté"};
 
-  const donnéesUtilisateur: RoleJoueurEquipe = {
+  const donnéesUtilisateur: RoleJoueurEquipetype = {
     id: utilisateur.id,
     name: utilisateur.name || "",
     email: utilisateur.email || "",
