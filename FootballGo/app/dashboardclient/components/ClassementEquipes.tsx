@@ -4,32 +4,9 @@ import { Info, Trophy } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import Image from 'next/image'
 import { PodiumRank } from './PodiumRang'
-import { ResultatMatch } from '@/types/classement'
-
-type EquipeData = {
-  classement: {
-    equipe: {
-      id: string;
-      nom: string;
-      logo: string | null;
-    };
-    stats: {
-      points: number;
-      matchsJoues: number;
-      victoires: number;
-      nuls: number;
-      defaites: number;
-      butsMarques: number;
-      butsEncaisses: number;
-      differenceDeButsGlobale: number;
-      formeRecente: ResultatMatch[];
-    };
-  }[];
-  totalEquipes: number;
-};
-
+import { ClassementResponse } from '../(interface-types)/StatsEquipe'
 interface ClassementEquipeProps {
-  data?: EquipeData;
+  data?: ClassementResponse;
   isLoading: boolean;
   erreurequipes: Error | null;
 }
