@@ -21,8 +21,7 @@ export default async function DashboardPage() {
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-      
-         <InputCodeInvitation></InputCodeInvitation>
+          <InputCodeInvitation></InputCodeInvitation>
           <ClientStats />
         </div>
       </SidebarInset>
