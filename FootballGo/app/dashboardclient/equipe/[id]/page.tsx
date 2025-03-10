@@ -10,8 +10,8 @@ interface EquipeDetailsPageProps {
   };
 }
 
-export default function EquipeDetailsPage({ params }: EquipeDetailsPageProps) {
-  const { id } = params;
+export default async function EquipeDetailsPage({ params }: EquipeDetailsPageProps) {
+  const { id } = await params;
   
   return (
     <div className="space-y-6">
@@ -25,7 +25,7 @@ export default function EquipeDetailsPage({ params }: EquipeDetailsPageProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {/* Ici vous pourriez ajouter des informations supplémentaires sur l'équipe */}
+       
         </CardContent>
       </Card>
       
@@ -37,21 +37,7 @@ export default function EquipeDetailsPage({ params }: EquipeDetailsPageProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Suspense fallback={
-            <div className="space-y-3">
-              {[...Array(3)].map((_, index) => (
-                <div key={index} className="flex items-center space-x-3">
-                  <Skeleton className="h-12 w-12 rounded-full" />
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-4 w-16" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          }>
-            <MembreEquipe equipeId={id} />
-          </Suspense>
+        <MembreEquipe equipeId={id} />
         </CardContent>
       </Card>
     </div>

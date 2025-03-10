@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useMembreEquipe, MembreEquipeType } from "../(hooks)/UseDashboardClient";
+import { useMembreEquipe , MembreEquipe as MembreequipeType } from "../(hooks)/UseDashboardClient";
 
 interface MembreEquipeProps {
   equipeId: string;
@@ -57,10 +57,11 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {ListeEquipe.membres.map((membre: MembreEquipeType) => (
+          {ListeEquipe.membres.map((membre: MembreequipeType) => (
             <Card key={membre.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-4">
                 <div className="flex items-center space-x-3">
+                    {membre.role}
                   <Avatar>
                     <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${membre.userId}`} />
                     <AvatarFallback>{membre.userId.substring(0, 2).toUpperCase()}</AvatarFallback>
