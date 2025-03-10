@@ -31,12 +31,22 @@ interface UserData {
   roleEquipe?: string;
 }
 
-interface SidebarClientProps extends React.ComponentProps<typeof Sidebar> {
-  userData: UserData;
+interface EquipeData {
+  id: string;
+  nom: string;
+  logoUrl: string;
+  role: string;
+  posteJoueur: string | null;
 }
 
-export function SidebarClient({ userData, ...props }: SidebarClientProps) {
-  const aUnClub = userData.roleEquipe !== "SANSCLUB";
+interface SidebarClientProps extends React.ComponentProps<typeof Sidebar> {
+  userData: UserData;
+  equipeData: EquipeData | null;
+}
+
+export function SidebarClient({ userData, equipeData, ...props }: SidebarClientProps) {
+  const aUnClub = userData.roleEquipe !== "SANSCLUB" && equipeData !== null;
+  const estEntraineur = equipeData?.role === "ENTRAINEUR";
 
   const elementsNavigationBase = [
     {
@@ -47,7 +57,7 @@ export function SidebarClient({ userData, ...props }: SidebarClientProps) {
       items: [
         {
           title: "Vue d'ensemble",
-          url: "/dashboard/overview",
+          url: "/dashboardclient",
         },
       ],
     },
@@ -57,8 +67,8 @@ export function SidebarClient({ userData, ...props }: SidebarClientProps) {
       icon: UsersIcon,
       items: [
         {
-          title: "Détails Equipes",
-          url: `/dashboardclient/equipe/${userData.id}`,
+          title: "Détails Equipe",
+          url: `/dashboardclient/equipe/${equipeData?.id}`,
         },
         {
           title: "Performance",
@@ -76,7 +86,7 @@ export function SidebarClient({ userData, ...props }: SidebarClientProps) {
           url: "/evenements/matchs",
         },
         {
-          title: "Entrainements à venir ",
+          title: "Entrainements à venir",
           url: "/evenements/tournois",
         },
       ],
@@ -85,14 +95,15 @@ export function SidebarClient({ userData, ...props }: SidebarClientProps) {
       title: "Gestion d'équipe",
       url: "/membres",
       icon: UsersIcon,
+      visible: estEntraineur, 
       items: [
         {
           title: "Joueurs",
-          url: "/membres/joueurs",
+          url: "/dashboardclient/membres/joueurs",
         },
         {
           title: "Staff",
-          url: "/membres/staff",
+          url: "/dashboardclient/membres/staff",
         },
       ],
     },
@@ -102,12 +113,13 @@ export function SidebarClient({ userData, ...props }: SidebarClientProps) {
       icon: ClipboardCheckIcon,
       items: [
         {
-          title: "Entraînements",
-          url: "/presence/entrainements",
+          title: "Mes présences",
+          url: "/dashboardclient/mes-presences",
         },
         {
-          title: "Matchs",
-          url: "/presence/matchs",
+          title: "Toutes les présences",
+          url: "/dashboardclient/presences",
+          visible: estEntraineur, 
         },
       ],
     },
@@ -117,19 +129,27 @@ export function SidebarClient({ userData, ...props }: SidebarClientProps) {
       icon: BarChart2Icon,
       items: [
         {
-          title: "Statistiques perso",
-          url: "/statistiques/perso",
+          title: "Mes statistiques",
+          url: "/dashboardclient/mes-statistiques",
         },
         {
-          title: "Statistiques équipes",
-          url: "/statistiques/equipes",
+          title: "Statistiques équipe",
+          url: "/dashboardclient/mon-equipe/statistiques",
         },
       ],
     },
   ];
 
 
-  const elementsNavigationFiltrés = aUnClub  ? elementsNavigationBase  : elementsNavigationBase.filter(item => item.title === "Accueil");
+  const elementsNavigationFiltrés = aUnClub
+    ? elementsNavigationBase.filter(item => !item.hasOwnProperty('visible') || item.visible !== false)
+    : elementsNavigationBase.filter(item => item.title === "Accueil");
+
+  // Filtrer les sous-menus selon les droits
+  const elementsAvecSousMenusFiltrés = elementsNavigationFiltrés.map(item => ({
+    ...item,
+    items: item.items ? item.items.filter(subItem => !subItem.hasOwnProperty('visible') || subItem.visible !== false) : []
+  }));
 
   const data = {
     user: {
@@ -142,19 +162,18 @@ export function SidebarClient({ userData, ...props }: SidebarClientProps) {
     },
     teams: [
       {
-        name: "FootballGo",
+        name: equipeData?.nom || "FootballGo",
         logo: GalleryVerticalEnd,
         plan: userData.plan?.toLocaleUpperCase() || ""
       },
-    
     ],
-    navMain: elementsNavigationFiltrés,  
+    navMain: elementsAvecSousMenusFiltrés,
   };
   
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-         <TeamSwitcher teams={data.teams} />
+        <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />

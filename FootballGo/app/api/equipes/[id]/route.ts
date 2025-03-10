@@ -1,23 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/prisma";
 import { CreationEquipeSchema } from "@/app/(schema)/SchemaEquipe";
+import { auth } from "@/auth";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { id } = await params;
-  const idUtilisateur = "cm7otmoce0002irmoe5qxpl6x";
+  const { id } = await params; 
+  const session = await auth();
+  const idUtilisateur = session?.user?.id;
+  
+  console.log("ID d'équipe reçu:", id);
+  console.log("ID d'utilisateur:", idUtilisateur);
 
   try {
+    // Vérifier que l'équipe existe
     const equipe = await prisma.equipe.findUnique({
       where: { id },
     });
 
     if (!equipe) {
+      console.log("Équipe non trouvée:", id);
       return NextResponse.json(
         { message: "Équipe non trouvée" },
         { status: 404 }
+      );
+    }
+
+    if (!idUtilisateur) {
+      return NextResponse.json(
+        { message: "Authentification requise" },
+        { status: 401 }
       );
     }
 
@@ -29,10 +43,10 @@ export async function GET(
     });
 
     if (!membreEquipe) {
+      console.log("Utilisateur non membre de l'équipe");
       return NextResponse.json(
         {
-          message:
-            "Seuls les membres de cette équipe peuvent accéder à ces données",
+          message: "Seuls les membres de cette équipe peuvent accéder à ces données",
         },
         { status: 403 }
       );
@@ -45,7 +59,7 @@ export async function GET(
       },
     });
 
-    return NextResponse.json({ ListeEquipe: equipeComplete?.nom });
+    return NextResponse.json({ ListeEquipe: equipeComplete });
   } catch (error) {
     console.error("Erreur lors de la recherche d'équipe:", error);
     return NextResponse.json({ message: "Erreur serveur" }, { status: 500 });

@@ -1,6 +1,6 @@
 import { RoleJoueurEquipe } from "@/lib/RoleJoueurEquipe";
-import ClientStats from "./components/client-stats";
-import InputCodeInvitation from "./components/InputCodeInvitation";
+import InputCodeInvitation from "./(components)/InputCodeInvitation";
+import ClientStats from "./(components)/client-stats";
 
 export default async function DashboardPage() {
   const utilisateur = await RoleJoueurEquipe();
