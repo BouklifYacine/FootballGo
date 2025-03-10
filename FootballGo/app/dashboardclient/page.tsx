@@ -1,32 +1,14 @@
-import { SidebarServeur } from "@/components/sidebar-server";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { ProtectionRouteAvecSession } from "../utils/SessionUtilisateur";
+import { RoleJoueurEquipe } from "@/lib/RoleJoueurEquipe";
 import ClientStats from "./components/client-stats";
 import InputCodeInvitation from "./components/InputCodeInvitation";
-import { RoleJoueurEquipe } from "@/lib/RoleJoueurEquipe";
 
 export default async function DashboardPage() {
-  await ProtectionRouteAvecSession();
-  const utilisateur = await RoleJoueurEquipe()
+  const utilisateur = await RoleJoueurEquipe();
 
   return (
-    <SidebarProvider>
-      <SidebarServeur />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-          </div>
-        </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <InputCodeInvitation utilisateur={utilisateur} />
-          <ClientStats />
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+    <>
+      <InputCodeInvitation utilisateur={utilisateur} />
+      <ClientStats />
+    </>
   );
 }
