@@ -1,4 +1,9 @@
+
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import ClassementEquipe from "../../components/ClassementEquipes";
+import { useClassementEquipe } from "../../(hooks)/UseDashboardClient";
+import TestEquipe from "../../components/testequipe";
 
 interface EquipeDetailsPageProps {
   params: {
@@ -6,8 +11,9 @@ interface EquipeDetailsPageProps {
   };
 }
 
-export default function EquipeDetailsPage({ params }: EquipeDetailsPageProps) {
-  const { id } = params;
+export default async function EquipeDetailsPage({ params }: EquipeDetailsPageProps) {
+  const { id } = await params;
+  
 
   return (
     <div className="space-y-4">
@@ -16,11 +22,11 @@ export default function EquipeDetailsPage({ params }: EquipeDetailsPageProps) {
         <CardHeader>
           <CardTitle>Informations de l&apos;équipe</CardTitle>
           <CardDescription>
-            ID de l&apos;équipe: {id}
+            ID de l&apos;équipe de ZEMEL: {id}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p>Cette page affichera les détails complets de l&apos;équipe sélectionnée.</p>
+        <TestEquipe></TestEquipe>
         </CardContent>
       </Card>
     </div>

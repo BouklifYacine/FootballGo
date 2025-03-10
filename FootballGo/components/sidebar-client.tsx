@@ -41,88 +41,88 @@ export function SidebarClient({ userData, ...props }: SidebarClientProps) {
   const elementsNavigationBase = [
     {
       title: "Accueil",
-      url: "/dashboardclient",
+      url: "/dashboard",
       icon: HomeIcon,
       isActive: true,
       items: [
         {
           title: "Vue d'ensemble",
-          url: "/dashboardclient",
+          url: "/dashboard/overview",
         },
       ],
     },
     {
       title: "Équipes",
-      url: "/dashboardclient/equipe",
+      url: "/equipes",
       icon: UsersIcon,
       items: [
         {
-          title: "Détails de mon équipe",
-          url: "/dashboardclient/equipe/cm7otmoce0002irmoe5qxpl6x",
+          title: "Détails Equipes",
+          url: `/dashboardclient/equipe/${userData.id}`,
         },
         {
           title: "Performance",
-          url: "/dashboardclient/equipe/performance",
+          url: "/equipes/performance",
         },
       ],
     },
     {
       title: "Événements",
-      url: "/dashboardclient/evenements",
+      url: "/evenements",
       icon: CalendarIcon,
       items: [
         {
           title: "Matchs à venir",
-          url: "/dashboardclient/evenements/matchs",
+          url: "/evenements/matchs",
         },
         {
           title: "Entrainements à venir ",
-          url: "/dashboardclient/evenements/entrainements",
+          url: "/evenements/tournois",
         },
       ],
     },
     {
       title: "Gestion d'équipe",
-      url: "/dashboardclient/membres",
+      url: "/membres",
       icon: UsersIcon,
       items: [
         {
           title: "Joueurs",
-          url: "/dashboardclient/membres/joueurs",
+          url: "/membres/joueurs",
         },
         {
           title: "Staff",
-          url: "/dashboardclient/membres/staff",
+          url: "/membres/staff",
         },
       ],
     },
     {
       title: "Présences",
-      url: "/dashboardclient/presence",
+      url: "/presence",
       icon: ClipboardCheckIcon,
       items: [
         {
           title: "Entraînements",
-          url: "/dashboardclient/presence/entrainements",
+          url: "/presence/entrainements",
         },
         {
           title: "Matchs",
-          url: "/dashboardclient/presence/matchs",
+          url: "/presence/matchs",
         },
       ],
     },
     {
       title: "Statistiques",
-      url: "/dashboardclient/statistiques",
+      url: "/statistiques",
       icon: BarChart2Icon,
       items: [
         {
           title: "Statistiques perso",
-          url: "/dashboardclient/statistiques/perso",
+          url: "/statistiques/perso",
         },
         {
           title: "Statistiques équipes",
-          url: "/dashboardclient/statistiques/equipes",
+          url: "/statistiques/equipes",
         },
       ],
     },
