@@ -3,12 +3,23 @@ import axios from "axios";
 import { StatsResponse } from "../(interface-types)/StatsJoueur";
 import { rejoindreEquipeCodeInvitation, RejoindreEquipeInput } from "../(server-actions)/DashboardClient-actions";
 import toast from "react-hot-toast";
+import { ClassementResponse } from "../(interface-types)/StatsEquipe";
 
 export function useClassementJoueurs() {
   return useQuery({
     queryKey: ["classement-joueurs"],
     queryFn: async () => {
       const { data } = await axios.get<StatsResponse>("/api/statistiques/joueurs");
+      return data;
+    },
+  });
+}
+
+export function useClassementEquipe() {
+  return useQuery({
+    queryKey: ["classement-équipes"],
+    queryFn: async () => {
+      const { data } = await axios.get<ClassementResponse>("/api/statistiques/equipes");
       return data;
     },
   });

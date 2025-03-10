@@ -3,18 +3,16 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   try {
-    // Récupérer toutes les équipes
+ 
     const equipes = await prisma.equipe.findMany({
       include: {
         statsEquipe: true
       }
     });
     
-    // Calculer les statistiques pour chaque équipe
     const classementEquipes = equipes.map(equipe => {
       const statsEquipe = equipe.statsEquipe || [];
       
-      // Calculer les statistiques de base
       const totalMatchs = statsEquipe.length;
       const victoires = statsEquipe.filter(stat => stat.resultatMatch === "VICTOIRE").length;
       const defaites = statsEquipe.filter(stat => stat.resultatMatch === "DEFAITE").length;
@@ -23,10 +21,8 @@ export async function GET(request: NextRequest) {
       const butsEncaisses = statsEquipe.reduce((sum, stat) => sum + stat.butsEncaisses, 0);
       const differenceDeButsGlobale = butsMarques - butsEncaisses;
       
-      // Calculer les points (3 pour victoire, 1 pour nul)
       const points = (victoires * 3) + nuls;
       
-      // Forme récente: les 5 derniers matchs
       const matchsRecents = [...statsEquipe]
         .sort((a, b) => new Date(b.dateCreation).getTime() - new Date(a.dateCreation).getTime())
         .slice(0, 5)
@@ -52,7 +48,6 @@ export async function GET(request: NextRequest) {
       };
     });
     
-    // Trier par points, puis différence de buts
     const classementTrie = classementEquipes.sort((a, b) => {
       if (b.stats.points !== a.stats.points) {
         return b.stats.points - a.stats.points;
