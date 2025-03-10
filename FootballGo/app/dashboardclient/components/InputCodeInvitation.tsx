@@ -45,9 +45,12 @@ const InputCodeInvitation = () => {
           Rentrez un code pour rejoindre une équipe :
         </span>
       </div>
-      
+
       <div className="flex-grow">
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-wrap gap-2">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-wrap gap-2"
+        >
           <div className="relative min-w-[150px] flex-grow max-w-xs">
             <Input
               {...register("codeInvitation")}
@@ -55,7 +58,7 @@ const InputCodeInvitation = () => {
               className="w-full"
               disabled={isPending}
               type="text"
-              maxLength={6}
+              
             />
             {errors.codeInvitation && (
               <p className="text-sm text-red-500 mt-1 ">
@@ -84,12 +87,18 @@ const InputCodeInvitation = () => {
 
       <div className="w-full sm:w-auto mt-2 sm:mt-0 sm:ml-auto">
         {isPending ? (
-          <Button variant="default" disabled={isPending} className="w-full sm:w-auto">
+          <Button
+            variant="default"
+            disabled={isPending}
+            className="w-full sm:w-auto"
+          >
             <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Indisponible
           </Button>
         ) : (
           <Link href="/creationequipe" className="block w-full sm:w-auto">
-            <Button variant="default" className="w-full">Créer une équipe</Button>
+            <Button variant="default" className="w-full">
+              Créer une équipe
+            </Button>
           </Link>
         )}
       </div>

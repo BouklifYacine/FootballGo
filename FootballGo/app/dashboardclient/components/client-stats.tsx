@@ -87,6 +87,7 @@ export default function ClassementJoueurs() {
   return (
     <div className="space-y-6">
 
+<span>Afficher stats : </span>
       <Button onClick={AfficherSectionJoueur}>{!sectionjoueur ? "Equipe" : "Joueur"}</Button>
       {!sectionjoueur ? <Card className="border-t-4 border-t-blue-500 shadow-lg">
         <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 pb-2">
