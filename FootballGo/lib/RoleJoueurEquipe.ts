@@ -13,7 +13,7 @@ export type RoleJoueurEquipetype = {
 export async function RoleJoueurEquipe() {
   const utilisateur = await GetSessionUtilisateur();
 
-  if (!utilisateur) return {error : "Pas connecté"};
+  if (!utilisateur) return null;
 
   const donnéesUtilisateur: RoleJoueurEquipetype = {
     id: utilisateur.id,

@@ -15,7 +15,7 @@ type FormValues = {
 };
 
 interface InputCodeInvitationProps {
-  utilisateur: RoleJoueurEquipetype ;
+  utilisateur: RoleJoueurEquipetype | null;
 }
 
 const InputCodeInvitation = ({utilisateur} : InputCodeInvitationProps) => {
@@ -44,7 +44,7 @@ const InputCodeInvitation = ({utilisateur} : InputCodeInvitationProps) => {
     });
   };
 
-  if ( utilisateur.roleEquipe !== "SANSCLUB") {
+  if ( !utilisateur || utilisateur.roleEquipe !== "SANSCLUB") {
     return null;
   }
 
