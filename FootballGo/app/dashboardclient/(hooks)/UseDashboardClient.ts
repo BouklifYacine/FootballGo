@@ -12,6 +12,11 @@ export interface MembreEquipe {
   dateAdhesion: Date;
   userId: string;
   equipeId: string;
+  user?: {
+    name: string | null;
+    image: string | null;
+    email: string | null;
+  };
 }
 
 export interface Equipe {

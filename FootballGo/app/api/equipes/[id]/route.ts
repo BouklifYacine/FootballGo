@@ -55,7 +55,17 @@ export async function GET(
     const equipeComplete = await prisma.equipe.findUnique({
       where: { id },
       include: {
-        membres: true,
+        membres: {
+          include: {
+            user: {
+              select: {
+                name: true,
+                image: true,
+                email: true,
+              }
+            }
+          }
+        },
       },
     });
 

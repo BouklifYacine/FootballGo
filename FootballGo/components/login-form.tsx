@@ -27,20 +27,20 @@ export function LoginForm({
           <form>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Nom de votre équipe </Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
+                  id="text"
+                  type="text"
+                  placeholder="FC SAINT PRIEST"
                   required
                 />
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="Description">Description</Label>
                  
                 </div>
-                <Input id="password" type="password" required />
+                <Input id="Description" type="Description" />
               </div>
               <Button type="submit" className="w-full">
                 Créer équipe

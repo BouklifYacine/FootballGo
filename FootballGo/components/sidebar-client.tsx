@@ -162,7 +162,7 @@ export function SidebarClient({ userData, equipeData, ...props }: SidebarClientP
     },
     teams: [
       {
-        name: equipeData?.nom || "FootballGo",
+        name:  "FootballGo",
         logo: GalleryVerticalEnd,
         plan: userData.plan?.toLocaleUpperCase() || ""
       },
