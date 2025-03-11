@@ -27,6 +27,7 @@ import {
   MembreEquipe as MembreequipeType,
 } from "../(hooks)/UseDashboardClient";
 import { BoutonModifierEquipe } from "./ModifierEquipe";
+import { BoutonSupprimerEquipe } from "./BoutonSuppressionClub";
 
 interface MembreEquipeProps {
   equipeId: string;
@@ -137,9 +138,14 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
                 )}
               </div>
             </div>
-            {estEntraineur && (
-              <BoutonModifierEquipe equipeId={equipeId} equipe={ListeEquipe} />
-            )}
+            <div className="flex items-center gap-2">
+  {estEntraineur && (
+    <>
+      <BoutonModifierEquipe equipeId={equipeId} equipe={ListeEquipe} />
+      <BoutonSupprimerEquipe equipeId={equipeId} nomEquipe={ListeEquipe.nom} />
+    </>
+  )}
+</div>
           </div>
         </CardHeader>
         <CardContent className="pt-4">

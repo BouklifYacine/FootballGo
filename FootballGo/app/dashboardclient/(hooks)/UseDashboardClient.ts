@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { StatsResponse } from "../(interface-types)/StatsJoueur";
-import { modifierEquipe, ModifierEquipeInputs, rejoindreEquipeCodeInvitation, RejoindreEquipeInput } from "../(server-actions)/DashboardClient-actions";
+import { modifierEquipe, ModifierEquipeInputs, rejoindreEquipeCodeInvitation, RejoindreEquipeInput, supprimerEquipe } from "../(server-actions)/DashboardClient-actions";
 import toast from "react-hot-toast";
 import { ClassementResponse } from "../(interface-types)/StatsEquipe";
+import { useRouter } from "next/navigation";
 
 export interface MembreEquipe {
   id: string;
@@ -131,6 +132,38 @@ export function useModifierEquipe(equipeId: string) {
     onError: () => {
       toast.dismiss();
       toast.error("Erreur lors de la modification de l'équipe");
+    }
+  });
+}
+
+export function useSupprimerEquipe(equipeId: string) {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+  
+  return useMutation({
+    mutationFn: async () => {
+      return await supprimerEquipe(equipeId);
+    },
+    
+    onMutate: () => {
+      toast.loading("Suppression de l'équipe en cours...");
+    },
+    
+    onSuccess: (result) => {
+      toast.dismiss();
+      
+      if (result.success) {
+        toast.success(result.message);
+        queryClient.invalidateQueries({ queryKey: ["equipes"] });
+        router.push("/dashboardclient");
+      } else {
+        toast.error(result.message);
+      }
+    },
+    
+    onError: () => {
+      toast.dismiss();
+      toast.error("Erreur lors de la suppression de l'équipe");
     }
   });
 }
