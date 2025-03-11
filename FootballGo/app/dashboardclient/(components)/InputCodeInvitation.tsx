@@ -9,6 +9,7 @@ import { useRejoindreEquipeCodeInvitation } from "../(hooks)/UseDashboardClient"
 import Link from "next/link";
 import { RejoindreEquipeSchema } from "@/app/(schema)/SchemaEquipe";
 import { RoleJoueurEquipetype } from "@/lib/RoleJoueurEquipe";
+import { useRouter } from "next/navigation";
 
 type FormValues = {
   codeInvitation: string;
@@ -33,11 +34,13 @@ const InputCodeInvitation = ({utilisateur} : InputCodeInvitationProps) => {
   });
 
   const { mutate, isPending } = useRejoindreEquipeCodeInvitation();
+  const router = useRouter()
 
   const onSubmit = (data: FormValues) => {
     mutate(data, {
       onSuccess: (result) => {
-        if (result.success) {
+        if (result.success && result.equipeId) {
+          router.push(`/dashboardclient/equipe/${result.equipeId}`);
           reset();
         }
       },

@@ -13,12 +13,21 @@ import { auth } from "@/auth";
 export type CreationEquipeInputs = z.infer<typeof CreationEquipeSchema>;
 export type RejoindreEquipeInput = z.infer<typeof RejoindreEquipeSchema>;
 export type ModifierEquipeInputs = z.infer<typeof CreationEquipeSchema>;
+export type ChangementDonneeJoueurInputs = z.infer<typeof ChangementDonneeJoueur>;
 
 export type ResultatCreationEquipe = {
   success: boolean;
   message: string;
   equipe?: string[];
 };
+
+export type CodeInvitationType = {
+  success: boolean;
+  message: string;
+  equipe?: string[];
+  equipeId?: string; 
+};
+
 
 export async function creerEquipe(data: CreationEquipeInputs) {
   try {
@@ -130,7 +139,7 @@ export async function creerEquipe(data: CreationEquipeInputs) {
 
 export async function rejoindreEquipeCodeInvitation(
   data: RejoindreEquipeInput
-): Promise<ResultatCreationEquipe> {
+): Promise<CodeInvitationType> {
   const validationResult = RejoindreEquipeSchema.safeParse(data);
 
   if (!validationResult.success) {
@@ -186,6 +195,7 @@ export async function rejoindreEquipeCodeInvitation(
       return {
         success: false,
         message: "Vous êtes déjà membre de cette équipe",
+        equipeId: equipe.id, 
       };
     }
 
@@ -208,10 +218,12 @@ export async function rejoindreEquipeCodeInvitation(
     });
 
     revalidatePath("/equipes");
+    revalidatePath("/dashboardclient");
 
     return {
       success: true,
       message: `Vous avez rejoint l'équipe ${equipe.nom} avec succès.`,
+      equipeId: equipe.id, 
     };
   } catch (error) {
     console.error("Erreur lors de la rejoindre l'équipe:", error);
@@ -355,9 +367,6 @@ export async function supprimerEquipe(equipeId: string) {
     };
   }
 }
-
-export type ChangementDonneeJoueurInputs = z.infer<typeof ChangementDonneeJoueur>;
-
 
 export async function modifierRoleEtPoste(
   equipeId: string, 

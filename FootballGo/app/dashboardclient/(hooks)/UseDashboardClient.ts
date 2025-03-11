@@ -138,6 +138,7 @@ export function useCreerEquipe() {
   });
 }
 
+
 export function useRejoindreEquipeCodeInvitation() {
   const queryClient = useQueryClient();
 

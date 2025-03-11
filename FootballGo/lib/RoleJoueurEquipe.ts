@@ -8,6 +8,10 @@ export type RoleJoueurEquipetype = {
   role: "utilisateur" | "Admin";
   plan: "free" | "pro";
   roleEquipe: "SANSCLUB" | "JOUEUR" | "ENTRAINEUR";
+
+  equipeId?: string;
+  equipeNom?: string;
+  equipeLogo?: string | null;
 };
 
 export async function RoleJoueurEquipe() {
@@ -23,6 +27,9 @@ export async function RoleJoueurEquipe() {
     role: utilisateur.role,
     plan: utilisateur.plan,
     roleEquipe: utilisateur.roleEquipe,
+    equipeId: utilisateur.membreEquipe?.equipe?.id,
+    equipeNom: utilisateur.membreEquipe?.equipe?.nom,
+    equipeLogo: utilisateur.membreEquipe?.equipe?.logoUrl
   };
 
   return donnéesUtilisateur;

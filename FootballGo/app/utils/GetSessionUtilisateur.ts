@@ -1,12 +1,10 @@
-
-
+// actions/auth-actions.ts
 import { auth } from "@/auth";
 import { prisma } from "@/prisma";
 
 export async function GetSessionUtilisateur() {
   try {
     const session = await auth();
-
     const SessionID = session?.user?.id;
 
     if (!SessionID) {
@@ -20,10 +18,27 @@ export async function GetSessionUtilisateur() {
         name: true,
         email: true,
         image: true,
-        role : true,
-        plan : true,
-        roleEquipe : true 
-      },
+        role: true,
+        plan: true,
+        roleEquipe: true,
+        membreEquipe: {
+          select: {
+            id: true,
+            role: true,
+            posteJoueur: true,
+            dateAdhesion: true,
+            equipeId: true,
+            equipe: {
+              select: {
+                id: true,
+                nom: true,
+                logoUrl: true,
+                codeInvitation: true
+              }
+            }
+          }
+        }
+      }
     });
 
     return utilisateur;
