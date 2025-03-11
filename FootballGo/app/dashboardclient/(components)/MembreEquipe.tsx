@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { Search, Users, Filter, Trophy } from "lucide-react";
+import { Search, Users, Filter, Trophy, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -23,8 +24,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from "@/components/ui/alert-dialog";
+import {
   useMembreEquipe,
   MembreEquipe as MembreequipeType,
+  useModifierRoleEtPoste,
+  useSupprimerMembreDEquipe
 } from "../(hooks)/UseDashboardClient";
 import { BoutonModifierEquipe } from "./ModifierEquipe";
 import { BoutonSupprimerEquipe } from "./BoutonSuppressionClub";
@@ -108,6 +122,91 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
     (m) => m.role === "JOUEUR"
   ).length;
 
+  // Composant pour les actions des membres
+  const MembreActions = ({ membre }: { membre: MembreequipeType }) => {
+    const modifierRoleMutation = useModifierRoleEtPoste(equipeId);
+    const supprimerMembreMutation = useSupprimerMembreDEquipe(equipeId);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+    if (!estEntraineur) return null;
+
+    return (
+      <div className="flex items-center space-x-2">
+        {/* Sélection de Rôle */}
+        <Select 
+          value={membre.role} 
+          onValueChange={(role: 'ENTRAINEUR' | 'JOUEUR') => {
+            modifierRoleMutation.mutate({
+              membreId: membre.userId,
+              role,
+              posteJoueur: role === 'JOUEUR' ? membre.posteJoueur || undefined : undefined
+            });
+          }}
+        >
+          <SelectTrigger className="w-[120px]">
+            <SelectValue placeholder="Rôle" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ENTRAINEUR">Entraineur</SelectItem>
+            <SelectItem value="JOUEUR">Joueur</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {/* Sélection de Poste (si Joueur) */}
+        {membre.role === 'JOUEUR' && (
+          <Select 
+            value={membre.posteJoueur || ''} 
+            onValueChange={(poste: 'GARDIEN' | 'DEFENSEUR' | 'MILIEU' | 'ATTAQUANT') => {
+              modifierRoleMutation.mutate({
+                membreId: membre.userId,
+                role: 'JOUEUR',
+                posteJoueur: poste
+              });
+            }}
+          >
+            <SelectTrigger className="w-[120px]">
+              <SelectValue placeholder="Poste" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="GARDIEN">Gardien</SelectItem>
+              <SelectItem value="DEFENSEUR">Défenseur</SelectItem>
+              <SelectItem value="MILIEU">Milieu</SelectItem>
+              <SelectItem value="ATTAQUANT">Attaquant</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+
+        {/* Bouton de Suppression */}
+        <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <AlertDialogTrigger asChild>
+            <Button size="icon" variant="destructive">
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Cette action supprimera {membre.user?.name || 'ce membre'} de l'équipe.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Annuler</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={() => {
+                  supprimerMembreMutation.mutate(membre.userId);
+                  setIsDialogOpen(false);
+                }}
+              >
+                Supprimer
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       <Card className="overflow-hidden border-t-4 border-t-primary">
@@ -139,13 +238,13 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
               </div>
             </div>
             <div className="flex items-center gap-2">
-  {estEntraineur && (
-    <>
-      <BoutonModifierEquipe equipeId={equipeId} equipe={ListeEquipe} />
-      <BoutonSupprimerEquipe equipeId={equipeId} nomEquipe={ListeEquipe.nom} />
-    </>
-  )}
-</div>
+              {estEntraineur && (
+                <>
+                  <BoutonModifierEquipe equipeId={equipeId} equipe={ListeEquipe} />
+                  <BoutonSupprimerEquipe equipeId={equipeId} nomEquipe={ListeEquipe.nom} />
+                </>
+              )}
+            </div>
           </div>
         </CardHeader>
         <CardContent className="pt-4">
@@ -260,13 +359,13 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
             </div>
           ) : (
             <div className="rounded-md border overflow-hidden">
-              <Table>
-                <TableHeader className="bg-muted/30">
+              <Table><TableHeader className="bg-muted/30">
                   <TableRow>
                     <TableHead className="font-bold">Avatar</TableHead>
                     <TableHead className="font-bold">Nom</TableHead>
                     <TableHead className="font-bold">Rôle</TableHead>
                     <TableHead className="font-bold">Poste</TableHead>
+                    {estEntraineur && <TableHead className="font-bold">Actions</TableHead>}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -323,6 +422,11 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
                           </span>
                         )}
                       </TableCell>
+                      {estEntraineur && (
+                        <TableCell>
+                          <MembreActions membre={membre} />
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
                 </TableBody>
