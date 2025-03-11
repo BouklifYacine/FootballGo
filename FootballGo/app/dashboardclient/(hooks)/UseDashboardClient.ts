@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { StatsResponse } from "../(interface-types)/StatsJoueur";
-import { CreationEquipeInputs, creerEquipe, modifierEquipe, ModifierEquipeInputs, rejoindreEquipeCodeInvitation, RejoindreEquipeInput, supprimerEquipe } from "../(server-actions)/DashboardClient-actions";
+import { CreationEquipeInputs, creerEquipe, modifierEquipe, ModifierEquipeInputs, modifierRoleEtPoste, rejoindreEquipeCodeInvitation, RejoindreEquipeInput, supprimerEquipe, supprimerMembreEquipe } from "../(server-actions)/DashboardClient-actions";
 import toast from "react-hot-toast";
 import { ClassementResponse } from "../(interface-types)/StatsEquipe";
 import { useRouter } from "next/navigation";
@@ -201,6 +201,81 @@ export function useSupprimerEquipe(equipeId: string) {
     onError: () => {
       toast.dismiss();
       toast.error("Erreur lors de la suppression de l'équipe");
+    }
+  });
+}
+
+export function useModifierRoleEtPoste(equipeId: string) {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (data: { 
+      membreId: string, 
+      role?: 'ENTRAINEUR' | 'JOUEUR', 
+      posteJoueur?: 'GARDIEN' | 'DEFENSEUR' | 'MILIEU' | 'ATTAQUANT'
+    }) => {
+      return await modifierRoleEtPoste(
+        equipeId, 
+        data.membreId, 
+        { 
+          role: data.role, 
+          posteJoueur: data.posteJoueur 
+        }
+      );
+    },
+    
+    onMutate: () => {
+      toast.loading("Modification du rôle en cours...");
+    },
+    
+    onSuccess: (result) => {
+      toast.dismiss();
+      
+      if (result.success) {
+        toast.success(result.message);
+        // Invalider les requêtes liées à l'équipe et aux membres
+        queryClient.invalidateQueries({ queryKey: ["membre-equipe", equipeId] });
+        queryClient.invalidateQueries({ queryKey: ["equipes"] });
+      } else {
+        toast.error(result.message);
+      }
+    },
+    
+    onError: (error: Error) => {
+      toast.dismiss();
+      toast.error(error.message || "Erreur lors de la modification du rôle");
+    }
+  });
+}
+
+export function useSupprimerMembreDEquipe(equipeId: string) {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (membreId: string) => {
+      return await supprimerMembreEquipe(equipeId, membreId);
+    },
+    
+    onMutate: () => {
+      toast.loading("Suppression du membre en cours...");
+    },
+    
+    onSuccess: (result) => {
+      toast.dismiss();
+      
+      if (result.success) {
+        toast.success(result.message);
+        // Invalider les requêtes liées à l'équipe et aux membres
+        queryClient.invalidateQueries({ queryKey: ["membre-equipe", equipeId] });
+        queryClient.invalidateQueries({ queryKey: ["equipes"] });
+      } else {
+        toast.error(result.message);
+      }
+    },
+    
+    onError: (error: Error) => {
+      toast.dismiss();
+      toast.error(error.message || "Erreur lors de la suppression du membre");
     }
   });
 }
