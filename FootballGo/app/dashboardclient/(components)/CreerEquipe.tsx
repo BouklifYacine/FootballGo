@@ -6,13 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import {Card,CardContent,CardDescription,CardHeader,CardTitle} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCreerEquipe } from "../(hooks)/UseDashboardClient";
@@ -21,22 +15,12 @@ import { CreationEquipeSchema } from '@/app/(schema)/SchemaEquipe';
 
 type CreationEquipeInputs = z.infer<typeof CreationEquipeSchema>;
 
-export function CreerEquipe({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<"div">) {
-  const { mutate, isPending, error } = useCreerEquipe();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<CreationEquipeInputs>({
-    resolver: zodResolver(CreationEquipeSchema),
-  });
+export function CreerEquipe({ className,...props}: React.ComponentPropsWithoutRef<"div">) {
 
-  const onSubmit = (data: CreationEquipeInputs) => {
-    mutate(data);
-  };
+  const { mutate, isPending, error } = useCreerEquipe();
+  const {  register, handleSubmit, formState: { errors }} = useForm<CreationEquipeInputs>({resolver: zodResolver(CreationEquipeSchema)});
+
+  const onSubmit = (data: CreationEquipeInputs) => {mutate(data)};
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
