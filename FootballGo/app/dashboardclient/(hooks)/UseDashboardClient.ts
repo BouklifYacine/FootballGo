@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { StatsResponse } from "../(interface-types)/StatsJoueur";
-import { rejoindreEquipeCodeInvitation, RejoindreEquipeInput } from "../(server-actions)/DashboardClient-actions";
+import { modifierEquipe, ModifierEquipeInputs, rejoindreEquipeCodeInvitation, RejoindreEquipeInput } from "../(server-actions)/DashboardClient-actions";
 import toast from "react-hot-toast";
 import { ClassementResponse } from "../(interface-types)/StatsEquipe";
 
@@ -31,6 +31,7 @@ export interface Equipe {
 
 export interface EquipeResponse {
   ListeEquipe: Equipe;
+  userId: string;
 }
 
 
@@ -100,6 +101,36 @@ export function useRejoindreEquipeCodeInvitation() {
     onError: () => {
       toast.dismiss();
       toast.error("Une erreur est survenue");
+    }
+  });
+}
+
+export function useModifierEquipe(equipeId: string) {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (data: ModifierEquipeInputs) => {
+      return await modifierEquipe(equipeId, data);
+    },
+    
+    onMutate: () => {
+      toast.loading("Mise à jour des informations...");
+    },
+    
+    onSuccess: (result) => {
+      toast.dismiss();
+      
+      if (result.success) {
+        toast.success(result.message);
+        queryClient.invalidateQueries({ queryKey: ["membre-equipe", equipeId] });
+      } else {
+        toast.error(result.message);
+      }
+    },
+    
+    onError: () => {
+      toast.dismiss();
+      toast.error("Erreur lors de la modification de l'équipe");
     }
   });
 }

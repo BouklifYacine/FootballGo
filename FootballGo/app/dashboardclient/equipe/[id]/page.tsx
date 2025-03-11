@@ -1,7 +1,4 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-
-import { Suspense } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
 import { MembreEquipe } from "../../(components)/MembreEquipe";
 
 interface EquipeDetailsPageProps {
