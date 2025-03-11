@@ -2,6 +2,7 @@
 
 import { prisma } from "@/prisma";
 import {
+  ChangementDonneeJoueur,
   CreationEquipeSchema,
   RejoindreEquipeSchema,
 } from "../../(schema)/SchemaEquipe";
@@ -21,7 +22,6 @@ export type ResultatCreationEquipe = {
 
 export async function creerEquipe(data: CreationEquipeInputs) {
   try {
-    // Validation avec Zod
     const validation = CreationEquipeSchema.safeParse(data);
     
     if (!validation.success) {
@@ -31,8 +31,7 @@ export async function creerEquipe(data: CreationEquipeInputs) {
         erreurs: validation.error.format()
       };
     }
-    
-    // Récupération de l'utilisateur connecté
+  
     const session = await auth();
     const idUtilisateur = session?.user?.id;
     
@@ -42,8 +41,7 @@ export async function creerEquipe(data: CreationEquipeInputs) {
         message: "Vous devez être connecté" 
       };
     }
-    
-    // Vérifier que l'utilisateur existe
+
     const utilisateur = await prisma.user.findUnique({
       where: { id: idUtilisateur },
     });
@@ -55,7 +53,6 @@ export async function creerEquipe(data: CreationEquipeInputs) {
       };
     }
     
-    // Vérifier si l'équipe existe déjà
     const equipeExistante = await prisma.equipe.findFirst({
       where: {
         nom: {
@@ -72,7 +69,6 @@ export async function creerEquipe(data: CreationEquipeInputs) {
       };
     }
     
-    // Vérifier si l'utilisateur est déjà entraineur d'une équipe
     const dejaEntraineur = await prisma.membreEquipe.findFirst({
       where: {
         userId: idUtilisateur,
@@ -87,7 +83,6 @@ export async function creerEquipe(data: CreationEquipeInputs) {
       };
     }
     
-    // Créer l'équipe dans une transaction
     const nouvelleEquipe = await prisma.$transaction(async (tx) => {
       const equipe = await tx.equipe.create({
         data: {
@@ -116,7 +111,6 @@ export async function creerEquipe(data: CreationEquipeInputs) {
       return equipe;
     });
     
-    // Revalider les paths
     revalidatePath('/dashboardclient');
     
     return {
@@ -358,6 +352,198 @@ export async function supprimerEquipe(equipeId: string) {
     return { 
       success: false, 
       message: "Une erreur est survenue lors de la suppression de l'équipe" 
+    };
+  }
+}
+
+export type ChangementDonneeJoueurInputs = z.infer<typeof ChangementDonneeJoueur>;
+
+export async function modifierRoleEtPoste(
+  equipeId: string, 
+  membreId: string, 
+  data: ChangementDonneeJoueurInputs
+) {
+  try {
+ 
+    const validation = ChangementDonneeJoueur.safeParse(data);
+    if (!validation.success) {
+      return {
+        success: false,
+        message: "Données invalides",
+        erreurs: validation.error.format()
+      };
+    }
+
+    const session = await auth();
+    const idUtilisateur = session?.user?.id;
+
+    if (!idUtilisateur) {
+      return {
+        success: false,
+        message: "Vous devez être connecté"
+      };
+    }
+
+    const equipe = await prisma.equipe.findUnique({
+      where: { id: equipeId },
+    });
+
+    if (!equipe) {
+      return {
+        success: false,
+        message: "Équipe non trouvée"
+      };
+    }
+
+    const joueurauclub = await prisma.membreEquipe.findUnique({
+      where: { userId: membreId },
+      include: { user: { select: { name: true } } },
+    });
+
+    if (!joueurauclub) {
+      return {
+        success: false,
+        message: "Ce joueur ne fait pas partie de ce club"
+      };
+    }
+
+    const coachEquipe = await prisma.membreEquipe.findFirst({
+      where: {
+        userId: idUtilisateur,
+        equipeId: equipeId,
+        role: "ENTRAINEUR",
+      },
+    });
+
+    if (!coachEquipe) {
+      return {
+        success: false,
+        message: "Seuls les coachs de cette équipe peuvent modifier les données du club"
+      };
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: membreId },
+        data: {
+          roleEquipe: data.role,
+        },
+      });
+
+      const joueurModifie = await tx.membreEquipe.update({
+        where: { id: joueurauclub.id },
+        data: { 
+          role: data.role, 
+          posteJoueur: data.posteJoueur 
+        },
+      });
+
+      return joueurModifie;
+    });
+
+    revalidatePath(`/dashboardclient/equipe/${equipeId}`);
+
+    return {
+      success: true,
+      message: `Le rôle et le poste de ${joueurauclub.user.name} ont été mis à jour`,
+      role: result.role,
+      poste: result.posteJoueur,
+      nomJoueur: joueurauclub.user.name
+    };
+
+  } catch (error) {
+    console.error("Erreur serveur lors du changement des données du joueur", error);
+    return {
+      success: false,
+      message: "Erreur serveur lors du changement des données du joueur"
+    };
+  }
+}
+
+export async function supprimerMembreEquipe(
+  equipeId: string, 
+  membreId: string
+) {
+  try {
+    const session = await auth();
+    const idUtilisateur = session?.user?.id;
+
+    if (!idUtilisateur) {
+      return {
+        success: false,
+        message: "Vous devez être connecté"
+      };
+    }
+
+    const equipe = await prisma.equipe.findUnique({
+      where: { id: equipeId },
+    });
+
+    if (!equipe) {
+      return {
+        success: false,
+        message: "Équipe non trouvée"
+      };
+    }
+
+    const joueurauclub = await prisma.membreEquipe.findUnique({
+      where: { userId: membreId },
+      include: { user: { select: { name: true } } },
+    });
+
+    if (!joueurauclub) {
+      return {
+        success: false,
+        message: "Ce joueur ne fait pas partie de ce club"
+      };
+    }
+
+    const coachEquipe = await prisma.membreEquipe.findFirst({
+      where: {
+        userId: idUtilisateur,
+        equipeId: equipeId,
+        role: "ENTRAINEUR",
+      },
+    });
+
+    if (!coachEquipe) {
+      return {
+        success: false,
+        message: "Seuls les coachs de cette équipe peuvent supprimer les membres du club"
+      };
+    }
+  
+    const nomJoueur = joueurauclub.user.name;
+
+    await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: membreId },
+        data: {
+          roleEquipe: "SANSCLUB",
+          AunClub: "NON",
+        },
+      });
+
+      await tx.membreEquipe.delete({
+        where: { id: joueurauclub.id },
+      });
+    });
+
+    revalidatePath(`/dashboardclient/equipe/${equipeId}`);
+
+    return {
+      success: true,
+      message: `Le joueur ${nomJoueur} a bien été retiré du club`
+    };
+
+  } catch (error) {
+    console.error(
+      "Erreur serveur lors de la suppression du membre",
+      error
+    );
+    return {
+      success: false,
+      message: "Erreur serveur lors de la suppression du membre"
     };
   }
 }
