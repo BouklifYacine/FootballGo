@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import { prisma } from "@/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -7,7 +8,9 @@ interface RouteParams {
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
-  const idUtilisateur = "cm7stg4000000irowgylbnkpq";
+  const session = await auth()
+  const idUtilisateur = session?.user?.id
+
 
   try {
     const equipe = await prisma.equipe.findUnique({
@@ -39,18 +42,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    if (equipe.codeInvitation) {
-      return NextResponse.json(
-        {
-          message: `Le code d'invitation existe déja pour l'équipe ${equipe.nom}`,
-        },
-        { status: 400 }
-      );
-    } else {
-      const codeInvitation = Math.floor(
-        100000 + Math.random() * 900000
-      ).toString();
+    const codeInvitation = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
 
+    if (equipe.codeInvitation === codeInvitation ) {
+      return NextResponse.json({message: `Le code d'invitation existe déja pour l'équipe ${equipe.nom}` },{ status: 400 });
+    } else {
       await prisma.equipe.update({
         where: { id },
         data: { codeInvitation: codeInvitation },

@@ -42,6 +42,7 @@ import {
 } from "../(hooks)/UseDashboardClient";
 import { BoutonModifierEquipe } from "./ModifierEquipe";
 import { BoutonSupprimerEquipe } from "./BoutonSuppressionClub";
+import { GestionCodeInvitation } from "./GestionCodeInvitation";
 
 interface MembreEquipeProps {
   equipeId: string;
@@ -242,6 +243,7 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
                 <>
                   <BoutonModifierEquipe equipeId={equipeId} equipe={ListeEquipe} />
                   <BoutonSupprimerEquipe equipeId={equipeId} nomEquipe={ListeEquipe.nom} />
+                  <GestionCodeInvitation equipeId={equipeId} codeInvitation={ListeEquipe.codeInvitation} estEntraineur={estEntraineur}/>
                 </>
               )}
             </div>
