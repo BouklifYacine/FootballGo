@@ -122,17 +122,17 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
     (m) => m.role === "JOUEUR"
   ).length;
 
-  // Composant pour les actions des membres
   const MembreActions = ({ membre }: { membre: MembreequipeType }) => {
     const modifierRoleMutation = useModifierRoleEtPoste(equipeId);
     const supprimerMembreMutation = useSupprimerMembreDEquipe(equipeId);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+    const estMembreConnecte = membre.userId === userId;
+
     if (!estEntraineur) return null;
 
     return (
       <div className="flex items-center space-x-2">
-        {/* Sélection de Rôle */}
         <Select 
           value={membre.role} 
           onValueChange={(role: 'ENTRAINEUR' | 'JOUEUR') => {
@@ -152,7 +152,6 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
           </SelectContent>
         </Select>
 
-        {/* Sélection de Poste (si Joueur) */}
         {membre.role === 'JOUEUR' && (
           <Select 
             value={membre.posteJoueur || ''} 
@@ -176,33 +175,34 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
           </Select>
         )}
 
-        {/* Bouton de Suppression */}
-        <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <AlertDialogTrigger asChild>
-            <Button size="icon" variant="destructive">
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Cette action supprimera {membre.user?.name || 'ce membre'} de l'équipe.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Annuler</AlertDialogCancel>
-              <AlertDialogAction 
-                onClick={() => {
-                  supprimerMembreMutation.mutate(membre.userId);
-                  setIsDialogOpen(false);
-                }}
-              >
-                Supprimer
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        {!estMembreConnecte && (
+          <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <AlertDialogTrigger asChild>
+              <Button size="icon" variant="destructive">
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Cette action supprimera {membre.user?.name || 'ce membre'} de l'équipe.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={() => {
+                    supprimerMembreMutation.mutate(membre.userId);
+                    setIsDialogOpen(false);
+                  }}
+                >
+                  Supprimer
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
       </div>
     );
   };
@@ -359,7 +359,8 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
             </div>
           ) : (
             <div className="rounded-md border overflow-hidden">
-              <Table><TableHeader className="bg-muted/30">
+              <Table>
+                <TableHeader className="bg-muted/30">
                   <TableRow>
                     <TableHead className="font-bold">Avatar</TableHead>
                     <TableHead className="font-bold">Nom</TableHead>
