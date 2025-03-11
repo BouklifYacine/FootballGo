@@ -9,10 +9,8 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { auth } from "@/auth";
 
-export type CreationEquipeInput = z.infer<typeof CreationEquipeSchema>;
-
+export type CreationEquipeInputs = z.infer<typeof CreationEquipeSchema>;
 export type RejoindreEquipeInput = z.infer<typeof RejoindreEquipeSchema>;
-
 export type ModifierEquipeInputs = z.infer<typeof CreationEquipeSchema>;
 
 export type ResultatCreationEquipe = {
@@ -21,82 +19,84 @@ export type ResultatCreationEquipe = {
   equipe?: string[];
 };
 
-export async function creerEquipe(
-  data: CreationEquipeInput
-): Promise<ResultatCreationEquipe> {
-  const validationResult = CreationEquipeSchema.safeParse(data);
-
-  if (!validationResult.success) {
-    return {
-      success: false,
-      message: "Données invalides",
-      errors: validationResult.error.format(),
-    };
-  }
-
-  const { nom, logoUrl, description } = validationResult.data;
-
-  const session = await auth();
-  const idUtilisateur = session?.user?.id;
-
-  if (!idUtilisateur) {
-    return {
-      success: false,
-      message: "Utilisateur non authentifié",
-    };
-  }
-
+export async function creerEquipe(data: CreationEquipeInputs) {
   try {
+    // Validation avec Zod
+    const validation = CreationEquipeSchema.safeParse(data);
+    
+    if (!validation.success) {
+      return {
+        success: false,
+        message: "Données invalides",
+        erreurs: validation.error.format()
+      };
+    }
+    
+    // Récupération de l'utilisateur connecté
+    const session = await auth();
+    const idUtilisateur = session?.user?.id;
+    
+    if (!idUtilisateur) {
+      return { 
+        success: false, 
+        message: "Vous devez être connecté" 
+      };
+    }
+    
+    // Vérifier que l'utilisateur existe
     const utilisateur = await prisma.user.findUnique({
       where: { id: idUtilisateur },
     });
-
+    
     if (!utilisateur) {
       return {
         success: false,
-        message: "Utilisateur introuvable",
+        message: "Utilisateur introuvable"
       };
     }
-
+    
+    // Vérifier si l'équipe existe déjà
     const equipeExistante = await prisma.equipe.findFirst({
       where: {
         nom: {
           mode: "insensitive",
-          equals: nom.trim(),
+          equals: data.nom.trim(),
         },
       },
     });
-
+    
     if (equipeExistante) {
       return {
         success: false,
-        message: "Une équipe avec ce nom existe déjà",
+        message: "Une équipe avec ce nom existe déjà"
       };
     }
-
+    
+    // Vérifier si l'utilisateur est déjà entraineur d'une équipe
     const dejaEntraineur = await prisma.membreEquipe.findFirst({
       where: {
         userId: idUtilisateur,
         role: "ENTRAINEUR",
       },
     });
-
+    
     if (dejaEntraineur) {
       return {
         success: false,
-        message: "Vous êtes déjà entraîneur d'une équipe",
+        message: "Vous êtes déjà entraîneur d'une équipe"
       };
     }
-
+    
+    // Créer l'équipe dans une transaction
     const nouvelleEquipe = await prisma.$transaction(async (tx) => {
       const equipe = await tx.equipe.create({
         data: {
-          nom: nom.trim(),
-          logoUrl,
-          description,
+          nom: data.nom.trim(),
+          description: data.description || null,
+          logoUrl: data.logoUrl || null,
         },
       });
-
+      
       await tx.membreEquipe.create({
         data: {
           userId: idUtilisateur,
@@ -104,7 +104,7 @@ export async function creerEquipe(
           role: "ENTRAINEUR",
         },
       });
-
+      
       await tx.user.update({
         where: { id: idUtilisateur },
         data: {
@@ -112,22 +112,24 @@ export async function creerEquipe(
           AunClub: "OUI",
         },
       });
-
+      
       return equipe;
     });
-
-    revalidatePath("/equipes");
-
+    
+    // Revalider les paths
+    revalidatePath('/dashboardclient');
+    
     return {
       success: true,
       message: "Équipe créée avec succès",
-      equipe: nouvelleEquipe,
+      equipe: nouvelleEquipe
     };
+    
   } catch (error) {
     console.error("Erreur lors de la création de l'équipe:", error);
     return {
       success: false,
-      message: "Erreur lors de la création de l'équipe",
+      message: "Erreur lors de la création de l'équipe"
     };
   }
 }

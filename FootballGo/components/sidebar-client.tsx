@@ -145,7 +145,7 @@ export function SidebarClient({ userData, equipeData, ...props }: SidebarClientP
     ? elementsNavigationBase.filter(item => !item.hasOwnProperty('visible') || item.visible !== false)
     : elementsNavigationBase.filter(item => item.title === "Accueil");
 
-  // Filtrer les sous-menus selon les droits
+ 
   const elementsAvecSousMenusFiltrés = elementsNavigationFiltrés.map(item => ({
     ...item,
     items: item.items ? item.items.filter(subItem => !subItem.hasOwnProperty('visible') || subItem.visible !== false) : []

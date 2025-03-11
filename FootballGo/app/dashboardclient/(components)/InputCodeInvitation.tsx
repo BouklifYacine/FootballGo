@@ -105,7 +105,7 @@ const InputCodeInvitation = ({utilisateur} : InputCodeInvitationProps) => {
             <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Indisponible
           </Button>
         ) : (
-          <Link href="/creationequipe" className="block w-full sm:w-auto">
+          <Link href="/dashboardclient/creationequipe" className="block w-full sm:w-auto">
             <Button variant="default" className="w-full">
               Créer une équipe
             </Button>
