@@ -211,16 +211,19 @@ export function useModifierRoleEtPoste(equipeId: string) {
   return useMutation({
     mutationFn: async (data: { 
       membreId: string, 
-      role?: 'ENTRAINEUR' | 'JOUEUR', 
+      role: 'ENTRAINEUR' | 'JOUEUR', 
       posteJoueur?: 'GARDIEN' | 'DEFENSEUR' | 'MILIEU' | 'ATTAQUANT'
     }) => {
+      const mutationData = {
+        membreId: data.membreId,
+        role: data.role,
+        posteJoueur: data.role === 'ENTRAINEUR' ? undefined : data.posteJoueur
+      };
+
       return await modifierRoleEtPoste(
         equipeId, 
         data.membreId, 
-        { 
-          role: data.role, 
-          posteJoueur: data.posteJoueur 
-        }
+        mutationData
       );
     },
     
@@ -233,7 +236,6 @@ export function useModifierRoleEtPoste(equipeId: string) {
       
       if (result.success) {
         toast.success(result.message);
-        // Invalider les requêtes liées à l'équipe et aux membres
         queryClient.invalidateQueries({ queryKey: ["membre-equipe", equipeId] });
         queryClient.invalidateQueries({ queryKey: ["equipes"] });
       } else {

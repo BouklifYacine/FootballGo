@@ -358,10 +358,11 @@ export async function supprimerEquipe(equipeId: string) {
 
 export type ChangementDonneeJoueurInputs = z.infer<typeof ChangementDonneeJoueur>;
 
+
 export async function modifierRoleEtPoste(
   equipeId: string, 
   membreId: string, 
-  data: ChangementDonneeJoueurInputs
+  data: z.infer<typeof ChangementDonneeJoueur>
 ) {
   try {
  
@@ -384,29 +385,6 @@ export async function modifierRoleEtPoste(
       };
     }
 
-    const equipe = await prisma.equipe.findUnique({
-      where: { id: equipeId },
-    });
-
-    if (!equipe) {
-      return {
-        success: false,
-        message: "Équipe non trouvée"
-      };
-    }
-
-    const joueurauclub = await prisma.membreEquipe.findUnique({
-      where: { userId: membreId },
-      include: { user: { select: { name: true } } },
-    });
-
-    if (!joueurauclub) {
-      return {
-        success: false,
-        message: "Ce joueur ne fait pas partie de ce club"
-      };
-    }
-
     const coachEquipe = await prisma.membreEquipe.findFirst({
       where: {
         userId: idUtilisateur,
@@ -418,9 +396,17 @@ export async function modifierRoleEtPoste(
     if (!coachEquipe) {
       return {
         success: false,
-        message: "Seuls les coachs de cette équipe peuvent modifier les données du club"
+        message: "Seuls les coachs de cette équipe peuvent modifier les rôles"
       };
     }
+
+    const dataToUpdate: { 
+      role: 'ENTRAINEUR' | 'JOUEUR', 
+      posteJoueur?: 'GARDIEN' | 'DEFENSEUR' | 'MILIEU' | 'ATTAQUANT' | null 
+    } = {
+      role: data.role,
+      posteJoueur: data.role === 'ENTRAINEUR' ? null : data.posteJoueur
+    };
 
     const result = await prisma.$transaction(async (tx) => {
       await tx.user.update({
@@ -430,32 +416,26 @@ export async function modifierRoleEtPoste(
         },
       });
 
-      const joueurModifie = await tx.membreEquipe.update({
-        where: { id: joueurauclub.id },
-        data: { 
-          role: data.role, 
-          posteJoueur: data.posteJoueur 
-        },
+      return await tx.membreEquipe.update({
+        where: { userId: membreId },
+        data: dataToUpdate,
       });
-
-      return joueurModifie;
     });
 
     revalidatePath(`/dashboardclient/equipe/${equipeId}`);
 
     return {
       success: true,
-      message: `Le rôle et le poste de ${joueurauclub.user.name} ont été mis à jour`,
+      message: `Le rôle a été mis à jour avec succès`,
       role: result.role,
-      poste: result.posteJoueur,
-      nomJoueur: joueurauclub.user.name
+      poste: result.posteJoueur
     };
 
   } catch (error) {
-    console.error("Erreur serveur lors du changement des données du joueur", error);
+    console.error("Erreur lors de la modification du rôle:", error);
     return {
       success: false,
-      message: "Erreur serveur lors du changement des données du joueur"
+      message: "Erreur lors de la modification du rôle"
     };
   }
 }

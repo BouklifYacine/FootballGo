@@ -25,8 +25,10 @@ export const CreationEquipeSchema = z.object({
 
 
 export const ChangementDonneeJoueur = z.object({
-  role: z.enum(["ENTRAINEUR", "JOUEUR"]).optional(),
-  posteJoueur: z.enum(["GARDIEN", "DEFENSEUR", "MILIEU", "ATTAQUANT"]).optional(),
+  role: z.enum(["ENTRAINEUR", "JOUEUR"]),
+  posteJoueur: z
+    .enum(["GARDIEN", "DEFENSEUR", "MILIEU", "ATTAQUANT"])
+    .optional()
 });
 
 export const RejoindreEquipeSchema = z.object({
