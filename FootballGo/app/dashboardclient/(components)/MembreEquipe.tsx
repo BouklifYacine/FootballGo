@@ -43,6 +43,7 @@ import {
 import { BoutonModifierEquipe } from "./ModifierEquipe";
 import { BoutonSupprimerEquipe } from "./BoutonSuppressionClub";
 import { GestionCodeInvitation } from "./GestionCodeInvitation";
+import { BoutonQuitterEquipe } from "./BoutonQuitterEquipe";
 
 interface MembreEquipeProps {
   equipeId: string;
@@ -239,12 +240,16 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {estEntraineur && (
-                <>
-                  <BoutonModifierEquipe equipeId={equipeId} equipe={ListeEquipe} />
-                  <BoutonSupprimerEquipe equipeId={equipeId} nomEquipe={ListeEquipe.nom} />
-                  <GestionCodeInvitation equipeId={equipeId} codeInvitation={ListeEquipe.codeInvitation} estEntraineur={estEntraineur}/>
-                </>
+            {estEntraineur ? (
+    <>
+      <BoutonModifierEquipe equipeId={equipeId} equipe={ListeEquipe} />
+      <BoutonSupprimerEquipe equipeId={equipeId} nomEquipe={ListeEquipe.nom} />
+      <GestionCodeInvitation equipeId={equipeId} codeInvitation={ListeEquipe.codeInvitation} estEntraineur={estEntraineur}/>
+    </>
+  ) : (
+    <>
+      <BoutonQuitterEquipe equipeId={equipeId} nomEquipe={ListeEquipe.nom} />
+    </>
               )}
             </div>
           </div>
