@@ -32,13 +32,13 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
   useMembreEquipe,
   MembreEquipe as MembreequipeType,
   useModifierRoleEtPoste,
-  useSupprimerMembreDEquipe
+  useSupprimerMembreDEquipe,
 } from "../(hooks)/UseDashboardClient";
 import { BoutonModifierEquipe } from "./ModifierEquipe";
 import { BoutonSupprimerEquipe } from "./BoutonSuppressionClub";
@@ -135,13 +135,14 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
 
     return (
       <div className="flex items-center space-x-2">
-        <Select 
-          value={membre.role} 
-          onValueChange={(role: 'ENTRAINEUR' | 'JOUEUR') => {
+        <Select
+          value={membre.role}
+          onValueChange={(role: "ENTRAINEUR" | "JOUEUR") => {
             modifierRoleMutation.mutate({
               membreId: membre.userId,
               role,
-              posteJoueur: role === 'JOUEUR' ? membre.posteJoueur || undefined : undefined
+              posteJoueur:
+                role === "JOUEUR" ? membre.posteJoueur || undefined : undefined,
             });
           }}
         >
@@ -154,14 +155,16 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
           </SelectContent>
         </Select>
 
-        {membre.role === 'JOUEUR' && (
-          <Select 
-            value={membre.posteJoueur || ''} 
-            onValueChange={(poste: 'GARDIEN' | 'DEFENSEUR' | 'MILIEU' | 'ATTAQUANT') => {
+        {membre.role === "JOUEUR" && (
+          <Select
+            value={membre.posteJoueur || ""}
+            onValueChange={(
+              poste: "GARDIEN" | "DEFENSEUR" | "MILIEU" | "ATTAQUANT"
+            ) => {
               modifierRoleMutation.mutate({
                 membreId: membre.userId,
-                role: 'JOUEUR',
-                posteJoueur: poste
+                role: "JOUEUR",
+                posteJoueur: poste,
               });
             }}
           >
@@ -188,12 +191,13 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
               <AlertDialogHeader>
                 <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Cette action supprimera {membre.user?.name || 'ce membre'} de l'équipe.
+                  Cette action supprimera {membre.user?.name || "ce membre"} de
+                  l'équipe.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Annuler</AlertDialogCancel>
-                <AlertDialogAction 
+                <AlertDialogAction
                   onClick={() => {
                     supprimerMembreMutation.mutate(membre.userId);
                     setIsDialogOpen(false);
@@ -240,17 +244,29 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
               </div>
             </div>
             <div className="flex items-center gap-2">
-            {estEntraineur ? (
-    <>
-      <BoutonModifierEquipe equipeId={equipeId} equipe={ListeEquipe} />
-      <BoutonSupprimerEquipe equipeId={equipeId} nomEquipe={ListeEquipe.nom} />
-      <GestionCodeInvitation equipeId={equipeId} codeInvitation={ListeEquipe.codeInvitation} estEntraineur={estEntraineur}/>
-    </>
-  ) : (
-    <>
-      <BoutonQuitterEquipe equipeId={equipeId} nomEquipe={ListeEquipe.nom} />
-    </>
+              {estEntraineur && (
+                <>
+                  <BoutonModifierEquipe
+                    equipeId={equipeId}
+                    equipe={ListeEquipe}
+                  />
+                  <BoutonSupprimerEquipe
+                    equipeId={equipeId}
+                    nomEquipe={ListeEquipe.nom}
+                  />
+                  <GestionCodeInvitation
+                    equipeId={equipeId}
+                    codeInvitation={ListeEquipe.codeInvitation}
+                    estEntraineur={estEntraineur}
+                  />
+                </>
               )}
+              <>
+                <BoutonQuitterEquipe
+                  equipeId={equipeId}
+                  nomEquipe={ListeEquipe.nom}
+                />
+              </>
             </div>
           </div>
         </CardHeader>
@@ -373,7 +389,9 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
                     <TableHead className="font-bold">Nom</TableHead>
                     <TableHead className="font-bold">Rôle</TableHead>
                     <TableHead className="font-bold">Poste</TableHead>
-                    {estEntraineur && <TableHead className="font-bold">Actions</TableHead>}
+                    {estEntraineur && (
+                      <TableHead className="font-bold">Actions</TableHead>
+                    )}
                   </TableRow>
                 </TableHeader>
                 <TableBody>

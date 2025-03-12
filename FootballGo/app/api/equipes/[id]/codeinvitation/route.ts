@@ -8,9 +8,8 @@ interface RouteParams {
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
-  const session = await auth()
-  const idUtilisateur = session?.user?.id
-
+  const session = await auth();
+  const idUtilisateur = session?.user?.id;
 
   try {
     const equipe = await prisma.equipe.findUnique({
@@ -46,8 +45,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       100000 + Math.random() * 900000
     ).toString();
 
-    if (equipe.codeInvitation === codeInvitation ) {
-      return NextResponse.json({message: `Le code d'invitation existe déja pour l'équipe ${equipe.nom}` },{ status: 400 });
+    if (equipe.codeInvitation === codeInvitation) {
+      return NextResponse.json(
+        {
+          message: `Le code d'invitation existe déja pour l'équipe ${equipe.nom}`,
+        },
+        { status: 400 }
+      );
     } else {
       await prisma.equipe.update({
         where: { id },
@@ -67,4 +71,3 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ message: "Erreur serveur" }, { status: 500 });
   }
 }
-
