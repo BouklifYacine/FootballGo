@@ -57,7 +57,7 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
 
   if (isLoading || !data) {
     return (
-      <div className="space-y-6">
+      <div className="flex flex-col gap-4">
         <Card>
           <CardHeader>
             <Skeleton className="h-8 w-1/3" />
@@ -134,7 +134,7 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
     if (!estEntraineur) return null;
 
     return (
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center gap-2">
         <Select
           value={membre.role}
           onValueChange={(role: "ENTRAINEUR" | "JOUEUR") => {
@@ -214,10 +214,10 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
   };
 
   return (
-    <div className="space-y-6">
-      <Card className="overflow-hidden border-t-4 border-t-primary">
-        <CardHeader className="bg-muted/30 pb-4">
-          <div className="flex justify-between items-center">
+    <div className="flex flex-col gap-6">
+      <Card className="overflow-hidden">
+        <CardHeader className="bg-muted/30 py-3">
+          <div className="flex flex-col md:flex-row justify-between items-start gap-3">
             <div className="flex items-center gap-3">
               {ListeEquipe.logoUrl ? (
                 <Avatar className="h-12 w-12 border-2 border-primary/20">
@@ -243,37 +243,43 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              {estEntraineur && (
-                <>
-                  <BoutonModifierEquipe
-                    equipeId={equipeId}
-                    equipe={ListeEquipe}
-                  />
-                  <BoutonSupprimerEquipe
-                    equipeId={equipeId}
-                    nomEquipe={ListeEquipe.nom}
-                  />
+            
+            <div className="flex flex-col w-full md:w-auto">
+              <div className="self-end">
+                {estEntraineur && (
                   <GestionCodeInvitation
                     equipeId={equipeId}
                     codeInvitation={ListeEquipe.codeInvitation}
                     estEntraineur={estEntraineur}
                   />
-                </>
-              )}
-              <>
+                )}
+              </div>
+              
+              <div className="flex flex-wrap gap-2 mt-2 self-end">
+                {estEntraineur && (
+                  <>
+                    <BoutonModifierEquipe
+                      equipeId={equipeId}
+                      equipe={ListeEquipe}
+                    />
+                    <BoutonSupprimerEquipe
+                      equipeId={equipeId}
+                      nomEquipe={ListeEquipe.nom}
+                    />
+                  </>
+                )}
                 <BoutonQuitterEquipe
                   equipeId={equipeId}
                   nomEquipe={ListeEquipe.nom}
                 />
-              </>
+              </div>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="pt-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="bg-blue-50 border-blue-100">
-              <CardContent className="p-4 flex items-center gap-3">
+        <CardContent className="pt-0 pb-3">
+          <div className="flex flex-col md:flex-row gap-3">
+            <Card className="flex-1 bg-blue-50 border-blue-100 shadow-sm">
+              <CardContent className="p-3 flex items-center gap-3">
                 <Users className="h-5 w-5 text-blue-500" />
                 <div>
                   <p className="text-sm font-medium text-blue-700">
@@ -285,8 +291,8 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
                 </div>
               </CardContent>
             </Card>
-            <Card className="bg-red-50 border-red-100">
-              <CardContent className="p-4 flex items-center gap-3">
+            <Card className="flex-1 bg-red-50 border-red-100 shadow-sm">
+              <CardContent className="p-3 flex items-center gap-3">
                 <Trophy className="h-5 w-5 text-red-500" />
                 <div>
                   <p className="text-sm font-medium text-red-700">
@@ -298,8 +304,8 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
                 </div>
               </CardContent>
             </Card>
-            <Card className="bg-green-50 border-green-100">
-              <CardContent className="p-4 flex items-center gap-3">
+            <Card className="flex-1 bg-green-50 border-green-100 shadow-sm">
+              <CardContent className="p-3 flex items-center gap-3">
                 <Users className="h-5 w-5 text-green-500" />
                 <div>
                   <p className="text-sm font-medium text-green-700">Joueurs</p>
@@ -315,7 +321,7 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
 
       <Card>
         <CardHeader className="pb-3">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col lg:flex-row justify-between items-start gap-4">
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
               <span>Membres de l'équipe</span>
@@ -324,8 +330,8 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
               </Badge>
             </CardTitle>
 
-            <div className="flex items-center space-x-2">
-              <div className="relative w-44">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="relative w-full sm:w-44">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Rechercher un membre..."
@@ -336,7 +342,7 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
               </div>
 
               <Select value={filtreRole} onValueChange={setFiltreRole}>
-                <SelectTrigger className="w-32 h-9 text-sm">
+                <SelectTrigger className="w-full sm:w-32 h-9 text-sm">
                   <SelectValue placeholder="Rôle" />
                 </SelectTrigger>
                 <SelectContent>
@@ -347,7 +353,7 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
               </Select>
 
               <Select value={filtrePoste} onValueChange={setFiltrePoste}>
-                <SelectTrigger className="w-36 h-9 text-sm">
+                <SelectTrigger className="w-full sm:w-36 h-9 text-sm">
                   <div className="flex items-center">
                     <Filter className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
                     <SelectValue placeholder="Poste" />
@@ -367,21 +373,21 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
         </CardHeader>
         <CardContent>
           {ListeEquipe.membres.length === 0 ? (
-            <div className="text-center py-8 bg-muted/20 rounded-lg">
-              <Users className="mx-auto h-12 w-12 text-muted-foreground" />
+            <div className="flex flex-col items-center justify-center py-8 bg-muted/20 rounded-lg">
+              <Users className="h-12 w-12 text-muted-foreground" />
               <p className="mt-2 text-muted-foreground font-medium">
                 Cette équipe n'a pas encore de membres.
               </p>
             </div>
           ) : membresFiltres.length === 0 ? (
-            <div className="text-center py-8 bg-muted/20 rounded-lg">
-              <Filter className="mx-auto h-12 w-12 text-muted-foreground" />
+            <div className="flex flex-col items-center justify-center py-8 bg-muted/20 rounded-lg">
+              <Filter className="h-12 w-12 text-muted-foreground" />
               <p className="mt-2 text-muted-foreground font-medium">
                 Aucun membre ne correspond aux critères de filtrage.
               </p>
             </div>
           ) : (
-            <div className="rounded-md border overflow-hidden">
+            <div className="rounded-md border overflow-auto">
               <Table>
                 <TableHeader className="bg-muted/30">
                   <TableRow>
