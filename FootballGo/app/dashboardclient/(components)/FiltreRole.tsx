@@ -23,7 +23,7 @@ import {
           </div>
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="TOUS">Tous les rôles</SelectItem>
+          <SelectItem value="TOUS">Tous les rôles</SelectItem>s
           <SelectItem value="ENTRAINEUR">Entraineur</SelectItem>
           <SelectItem value="JOUEUR">Joueur</SelectItem>
         </SelectContent>

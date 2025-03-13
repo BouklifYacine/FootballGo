@@ -3,19 +3,9 @@
 import React, { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { Search, Users, Filter, Trophy, Trash2 } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Search, Users, Filter, Trophy,  } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -23,17 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import {
   useMembreEquipe,
   MembreEquipe as MembreequipeType,
@@ -46,6 +25,11 @@ import { GestionCodeInvitation } from "./GestionCodeInvitation";
 import { BoutonQuitterEquipe } from "./BoutonQuitterEquipe";
 import FiltreRole from "./FiltreRole";
 import FiltrePoste from "./FiltrePoste";
+import Loading from "./Loading";
+import Erreur from "./Erreur";
+import TableauMembresEquipe from "./Tableau";
+import ConfirmationSuppressionDialog from "./ConfirmationSuppressionDialog";
+import BlocAffichageEquipe from "./BlocAffichageEquipe";
 
 interface MembreEquipeProps {
   equipeId: string;
@@ -58,35 +42,11 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
   const [filtrePoste, setFiltrePoste] = useState("TOUS");
 
   if (isLoading || !data) {
-    return (
-      <div className="flex flex-col gap-4">
-        <Card>
-          <CardHeader>
-            <Skeleton className="h-8 w-1/3" />
-          </CardHeader>
-          <CardContent>
-            <Skeleton className="h-5 w-1/4 mb-6" />
-            <Skeleton className="h-64 w-full" />
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return ( <Loading/>);
   }
 
   if (isError) {
-    return (
-      <Card className="border-red-200 bg-red-50">
-        <CardHeader>
-          <CardTitle className="text-red-700">Erreur</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-red-600">
-            Une erreur est survenue lors de la récupération des données de
-            l'équipe.
-          </p>
-        </CardContent>
-      </Card>
-    );
+    return (<Erreur></Erreur>);
   }
 
   const { ListeEquipe } = data;
@@ -126,6 +86,8 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
     (m) => m.role === "JOUEUR"
   ).length;
 
+  
+
   const MembreActions = ({ membre }: { membre: MembreequipeType }) => {
     const modifierRoleMutation = useModifierRoleEtPoste(equipeId);
     const supprimerMembreMutation = useSupprimerMembreDEquipe(equipeId);
@@ -134,6 +96,11 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
     const estMembreConnecte = membre.userId === userId;
 
     if (!estEntraineur) return null;
+
+    const handleDeleteConfirm = () => {
+      supprimerMembreMutation.mutate(membre.userId);
+      setIsDialogOpen(false);
+    };
 
     return (
       <div className="flex items-center gap-2">
@@ -183,33 +150,13 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
         )}
 
         {!estMembreConnecte && (
-          <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <AlertDialogTrigger asChild>
-              <Button size="icon" variant="destructive">
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Cette action supprimera {membre.user?.name || "ce membre"} de
-                  l'équipe.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Annuler</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => {
-                    supprimerMembreMutation.mutate(membre.userId);
-                    setIsDialogOpen(false);
-                  }}
-                >
-                  Supprimer
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+           <ConfirmationSuppressionDialog
+           isOpen={isDialogOpen}
+           setIsOpen={setIsDialogOpen}
+           nomMembre={membre.user?.name}
+           onConfirm={handleDeleteConfirm}
+           isLoading={supprimerMembreMutation.isPending}
+         />
         )}
       </div>
     );
@@ -279,45 +226,7 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
           </div>
         </CardHeader>
         <CardContent className="pt-0 pb-3">
-          <div className="flex flex-col md:flex-row gap-3">
-            <Card className="flex-1 bg-blue-50 border-blue-100 shadow-sm">
-              <CardContent className="p-3 flex items-center gap-3">
-                <Users className="h-5 w-5 text-blue-500" />
-                <div>
-                  <p className="text-sm font-medium text-blue-700">
-                    Total Membres
-                  </p>
-                  <p className="text-2xl font-bold text-blue-800">
-                    {ListeEquipe.membres.length}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="flex-1 bg-red-50 border-red-100 shadow-sm">
-              <CardContent className="p-3 flex items-center gap-3">
-                <Trophy className="h-5 w-5 text-red-500" />
-                <div>
-                  <p className="text-sm font-medium text-red-700">
-                    Entraineurs
-                  </p>
-                  <p className="text-2xl font-bold text-red-800">
-                    {nombreEntraineurs}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="flex-1 bg-green-50 border-green-100 shadow-sm">
-              <CardContent className="p-3 flex items-center gap-3">
-                <Users className="h-5 w-5 text-green-500" />
-                <div>
-                  <p className="text-sm font-medium text-green-700">Joueurs</p>
-                  <p className="text-2xl font-bold text-green-800">
-                    {nombreJoueurs}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <BlocAffichageEquipe nombreEntraineurs={nombreEntraineurs} nombreJoueurs={nombreJoueurs} ListeEquipe={ListeEquipe} ></BlocAffichageEquipe>
         </CardContent>
       </Card>
 
@@ -365,83 +274,11 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
               </p>
             </div>
           ) : (
-            <div className="rounded-md border overflow-auto">
-              <Table>
-                <TableHeader className="bg-muted/30">
-                  <TableRow>
-                    <TableHead className="font-bold">Avatar</TableHead>
-                    <TableHead className="font-bold">Nom</TableHead>
-                    <TableHead className="font-bold">Rôle</TableHead>
-                    <TableHead className="font-bold">Poste</TableHead>
-                    {estEntraineur && (
-                      <TableHead className="font-bold">Actions</TableHead>
-                    )}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {membresFiltres.map((membre: MembreequipeType) => (
-                    <TableRow
-                      key={membre.id}
-                      className="hover:bg-muted/10 transition-colors"
-                    >
-                      <TableCell>
-                        <Avatar className="h-10 w-10 border border-muted">
-                          <AvatarImage
-                            src={
-                              membre.user?.image ||
-                              `https://api.dicebear.com/7.x/initials/svg?seed=${membre.user?.name || membre.userId}`
-                            }
-                          />
-                          <AvatarFallback className="bg-primary/10 text-primary">
-                            {membre.user?.name?.[0]?.toUpperCase() ||
-                              membre.userId.substring(0, 2).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        {membre.user?.name ||
-                          `Utilisateur ${membre.userId.substring(0, 8)}`}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            membre.role === "ENTRAINEUR"
-                              ? "destructive"
-                              : "secondary"
-                          }
-                          className={
-                            membre.role === "ENTRAINEUR"
-                              ? "bg-red-100 text-red-800 hover:bg-red-200"
-                              : ""
-                          }
-                        >
-                          {membre.role}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {membre.posteJoueur ? (
-                          <Badge
-                            variant="outline"
-                            className="bg-muted/30 font-normal"
-                          >
-                            {membre.posteJoueur}
-                          </Badge>
-                        ) : (
-                          <span className="text-sm text-muted-foreground">
-                            Aucun poste
-                          </span>
-                        )}
-                      </TableCell>
-                      {estEntraineur && (
-                        <TableCell>
-                          <MembreActions membre={membre} />
-                        </TableCell>
-                      )}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+            <TableauMembresEquipe
+              membres={membresFiltres}
+              estEntraineur={estEntraineur}
+              MembreActions={MembreActions}
+            />
           )}
         </CardContent>
       </Card>
