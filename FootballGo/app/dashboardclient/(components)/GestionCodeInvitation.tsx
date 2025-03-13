@@ -2,29 +2,29 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
-import { 
-  AlertDialog, 
-  AlertDialogAction, 
-  AlertDialogCancel, 
-  AlertDialogContent, 
-  AlertDialogDescription, 
-  AlertDialogFooter, 
-  AlertDialogHeader, 
-  AlertDialogTitle, 
-  AlertDialogTrigger 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { 
-  Tooltip, 
-  TooltipContent, 
-  TooltipProvider, 
-  TooltipTrigger 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Copy, RefreshCw, Trash2 } from "lucide-react";
 import { useCodeInvitation } from "../(hooks)/UseDashboardClient";
@@ -36,19 +36,14 @@ interface CodeInvitationProps {
   estEntraineur: boolean;
 }
 
-export function GestionCodeInvitation({ 
-  equipeId, 
-  codeInvitation, 
-  estEntraineur 
+export function GestionCodeInvitation({
+  equipeId,
+  codeInvitation,
+  estEntraineur,
 }: CodeInvitationProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const { 
-    genererCode, 
-    supprimerCode, 
-    isGenerating, 
-    isDeleting 
-  } = useCodeInvitation(equipeId);
-
+  const { genererCode, supprimerCode, isGenerating, isDeleting } =
+    useCodeInvitation(equipeId);
 
   if (!estEntraineur) return null;
 
@@ -73,12 +68,12 @@ export function GestionCodeInvitation({
             <div className="bg-muted/30 px-4 py-2 rounded-md font-mono text-lg font-semibold">
               {codeInvitation}
             </div>
-            
+
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="icon"
                     onClick={handleCopierCode}
                   >
@@ -92,8 +87,8 @@ export function GestionCodeInvitation({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="icon"
                     onClick={() => genererCode()}
                     disabled={isGenerating}
@@ -105,15 +100,19 @@ export function GestionCodeInvitation({
               </Tooltip>
             </TooltipProvider>
 
-            <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+            <AlertDialog
+              open={isDeleteDialogOpen}
+              onOpenChange={setIsDeleteDialogOpen}
+            >
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <AlertDialogTrigger asChild>
-                      <Button 
-                        variant="destructive" 
-                        size="icon"
-                        disabled={isDeleting}
+                      <Button
+                      variant="destructive"
+                       className={`${isDeleting || isGenerating ? "bg-red-500/50" : "bg-red-500"}`}
+                       size="icon"
+                       disabled={isDeleting || isGenerating}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -125,15 +124,19 @@ export function GestionCodeInvitation({
 
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Supprimer le code d'invitation</AlertDialogTitle>
+                  <AlertDialogTitle>
+                    Supprimer le code d'invitation
+                  </AlertDialogTitle>
                   <AlertDialogDescription>
-                    Êtes-vous sûr de vouloir supprimer ce code d'invitation ? 
-                    Les membres ne pourront plus rejoindre l'équipe avec ce code.
+                    Êtes-vous sûr de vouloir supprimer ce code d'invitation ?
+                    Les membres ne pourront plus rejoindre l'équipe avec ce
+                    code.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Annuler</AlertDialogCancel>
-                  <AlertDialogAction 
+                  <AlertDialogAction
+                  className="bg-red-500"
                     onClick={() => {
                       supprimerCode();
                       setIsDeleteDialogOpen(false);
@@ -146,10 +149,7 @@ export function GestionCodeInvitation({
             </AlertDialog>
           </div>
         ) : (
-          <Button 
-            onClick={() => genererCode()}
-            disabled={isGenerating}
-          >
+          <Button onClick={() => genererCode()} disabled={isGenerating}>
             Générer un code d'invitation
           </Button>
         )}
