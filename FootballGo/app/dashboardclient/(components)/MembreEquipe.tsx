@@ -44,6 +44,7 @@ import { BoutonModifierEquipe } from "./ModifierEquipe";
 import { BoutonSupprimerEquipe } from "./BoutonSuppressionClub";
 import { GestionCodeInvitation } from "./GestionCodeInvitation";
 import { BoutonQuitterEquipe } from "./BoutonQuitterEquipe";
+import FiltreRole from "./FiltreRole";
 
 interface MembreEquipeProps {
   equipeId: string;
@@ -340,17 +341,8 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
                   className="pl-8 h-9 text-sm"
                 />
               </div>
-
-              <Select value={filtreRole} onValueChange={setFiltreRole}>
-                <SelectTrigger className="w-full sm:w-32 h-9 text-sm">
-                  <SelectValue placeholder="Rôle" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="TOUS">Tous les rôles</SelectItem>
-                  <SelectItem value="ENTRAINEUR">Entraineur</SelectItem>
-                  <SelectItem value="JOUEUR">Joueur</SelectItem>
-                </SelectContent>
-              </Select>
+              
+         <FiltreRole filtreRole={filtreRole} setFiltreRole={setFiltreRole} ></FiltreRole>
 
               <Select value={filtrePoste} onValueChange={setFiltrePoste}>
                 <SelectTrigger className="w-full sm:w-36 h-9 text-sm">
