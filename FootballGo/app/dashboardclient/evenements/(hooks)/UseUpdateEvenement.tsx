@@ -16,7 +16,7 @@ export function useUpdateEvenement(equipeId: string, evenementId: string) {
       return await updateEvenement(donnees, equipeId, evenementId);
     },
 
-    onMutate: (variables) => {
+    onMutate: () => {
       toast.loading("Mise à jour de l'événement en cours...");
     },
 

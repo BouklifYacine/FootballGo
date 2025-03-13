@@ -12,12 +12,23 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, MapPinIcon } from "lucide-react";
+import { CalendarIcon, MapPinIcon, Trash2 } from "lucide-react";
 import { useEvenementsEquipe } from "../(hooks)/UseEvenement-Equipe";
+import { useDeleteEvenement } from "../(hooks)/UseDeleteEvenement";
 import { FiltreEvenements } from "@/app/(schema)/SchemaEvenementv2";
 import { Pagination } from "./Pagination";
 import { Evenement } from "../(types)/EvenementsResponse";
 import Link from "next/link";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface ListeEvenementsProps {
   equipeId: string;
@@ -30,10 +41,13 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
     page: 1,
     limit: 5
   });
+  const [evenementASupprimer, setEvenementASupprimer] = useState<string | null>(null);
+  const [dialogSuppressionOuvert, setDialogSuppressionOuvert] = useState(false);
 
   const [activeTab, setActiveTab] = useState<string>("a-venir");
 
   const { data, isLoading, isError, error } = useEvenementsEquipe(equipeId, filtres);
+  const { deleteEvenement, isPending: isDeletePending } = useDeleteEvenement(equipeId);
 
   // Vérifier si la page actuelle est valide par rapport au nombre total de pages
   const totalPages = data?.pagination?.pages || 1;
@@ -73,6 +87,18 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
     setActiveTab(value);
     // Réinitialiser à la page 1 lors du changement d'onglet
     setFiltres(prev => ({ ...prev, page: 1 }));
+  };
+
+  const handleDeleteEvenement = (evenementId: string) => {
+    setEvenementASupprimer(evenementId);
+    setDialogSuppressionOuvert(true);
+  };
+
+  const confirmDeleteEvenement = () => {
+    if (evenementASupprimer) {
+      deleteEvenement(evenementASupprimer);
+      setDialogSuppressionOuvert(false);
+    }
   };
 
   const getPresenceStatut = (statut: string | undefined) => {
@@ -151,13 +177,21 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
                 {estEntraineur && (
                   <>
                     <Separator />
-                    <div className="flex justify-end space-x-2">
+                    <div className="flex justify-end space-x-4">
                       <Link 
                         href={`/dashboardclient/equipe/${equipeId}/evenements/${evenement.id}/modifier`}
                         className="text-sm text-blue-600 hover:text-blue-800 font-medium"
                       >
                         Modifier
                       </Link>
+                      <button
+                        onClick={() => handleDeleteEvenement(evenement.id)}
+                        className="text-sm text-red-600 hover:text-red-800 font-medium flex items-center"
+                        disabled={isDeletePending}
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Supprimer
+                      </button>
                     </div>
                   </>
                 )}
@@ -182,46 +216,68 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Événements</h2>
-        <Select 
-          value={filtres.type}
-          onValueChange={handleTypeChange}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Type d'événement" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="TOUS">Tous</SelectItem>
-            <SelectItem value="MATCH">Matchs</SelectItem>
-            <SelectItem value="ENTRAINEMENT">Entraînements</SelectItem>
-          </SelectContent>
-        </Select>
+    <>
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold">Événements</h2>
+          <Select 
+            value={filtres.type}
+            onValueChange={handleTypeChange}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Type d'événement" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="TOUS">Tous</SelectItem>
+              <SelectItem value="MATCH">Matchs</SelectItem>
+              <SelectItem value="ENTRAINEMENT">Entraînements</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <Tabs defaultValue="a-venir" value={activeTab} onValueChange={handleTabChange}>
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="a-venir">À venir ({data?.evenementsAVenir.length || 0})</TabsTrigger>
+            <TabsTrigger value="passes">Passés ({data?.evenementsPassés.length || 0})</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="a-venir">
+            {renderEvenements(data?.evenementsAVenir || [])}
+          </TabsContent>
+
+          <TabsContent value="passes">
+            {renderEvenements(data?.evenementsPassés || [])}
+          </TabsContent>
+        </Tabs>
+
+        {data?.pagination && (
+          <Pagination 
+            currentPage={currentPage} 
+            totalPages={totalPages} 
+            onPageChange={handlePageChange} 
+          />
+        )}
       </div>
 
-      <Tabs defaultValue="a-venir" value={activeTab} onValueChange={handleTabChange}>
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="a-venir">À venir ({data?.evenementsAVenir.length || 0})</TabsTrigger>
-          <TabsTrigger value="passes">Passés ({data?.evenementsPassés.length || 0})</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="a-venir">
-          {renderEvenements(data?.evenementsAVenir || [])}
-        </TabsContent>
-
-        <TabsContent value="passes">
-          {renderEvenements(data?.evenementsPassés || [])}
-        </TabsContent>
-      </Tabs>
-
-      {data?.pagination && (
-        <Pagination 
-          currentPage={currentPage} 
-          totalPages={totalPages} 
-          onPageChange={handlePageChange} 
-        />
-      )}
-    </div>
+      <AlertDialog open={dialogSuppressionOuvert} onOpenChange={setDialogSuppressionOuvert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer cet événement ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action est irréversible. Toutes les données associées à cet événement (présences, statistiques) seront également supprimées.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteEvenement}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
