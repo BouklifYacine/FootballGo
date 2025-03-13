@@ -6,7 +6,6 @@ const evenementBaseSchema = z.object({
     message: "Format de date invalide. Utilisez YYYY-MM-DD",
   }),
   heure: z.string().regex(/^\d{1,2}:\d{2}$/, "Format d'heure invalide (HH:MM)"),
-
   description: z.string().optional(),
   lieu: z.string().optional(),
   typeEvenement: z.enum(["MATCH", "ENTRAINEMENT"]).default("ENTRAINEMENT"),
@@ -31,6 +30,14 @@ export const evenementSchema = z.discriminatedUnion("recurrent", [
   evenementRecurrentSchema,
 ]);
 
+export const filtreEvenementsSchema = z.object({
+    debut: z.string().optional(),
+    fin: z.string().optional(),
+    type: z.enum(["MATCH", "ENTRAINEMENT", "TOUS"]).optional(),
+    limit: z.number().min(1).max(50).optional(),
+    page: z.number().min(1).optional()
+  });
 export type EvenementUnique = z.infer<typeof evenementUniqueSchema>;
 export type EvenementRecurrent = z.infer<typeof evenementRecurrentSchema>;
 export type Evenement = z.infer<typeof evenementSchema>;
+export type FiltreEvenements = z.infer<typeof filtreEvenementsSchema>;
