@@ -70,17 +70,18 @@ export function SidebarClient({ userData, equipeData, ...props }: SidebarClientP
           title: "Détails Equipe",
           url: `/dashboardclient/equipe/${equipeData?.id}`,
         },
-        {
-          title: "Performance",
-          url: "/equipes/performance",
-        },
+      
       ],
     },
     {
       title: "Événements",
-      url: "/evenements",
+      url: `/dashboardclient/evenements/${equipeData?.id}`, 
       icon: CalendarIcon,
       items: [
+        {
+          title: "Evenements",
+          url: `/dashboardclient/evenements/${equipeData?.id}`,
+        },
         {
           title: "Matchs à venir",
           url: "/evenements/matchs",
