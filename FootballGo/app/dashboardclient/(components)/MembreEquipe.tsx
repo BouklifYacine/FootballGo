@@ -45,6 +45,7 @@ import { BoutonSupprimerEquipe } from "./BoutonSuppressionClub";
 import { GestionCodeInvitation } from "./GestionCodeInvitation";
 import { BoutonQuitterEquipe } from "./BoutonQuitterEquipe";
 import FiltreRole from "./FiltreRole";
+import FiltrePoste from "./FiltrePoste";
 
 interface MembreEquipeProps {
   equipeId: string;
@@ -343,23 +344,8 @@ export function MembreEquipe({ equipeId }: MembreEquipeProps) {
               </div>
               
          <FiltreRole filtreRole={filtreRole} setFiltreRole={setFiltreRole} ></FiltreRole>
+         <FiltrePoste filtrePoste={filtrePoste} setFiltrePoste={setFiltrePoste}></FiltrePoste>
 
-              <Select value={filtrePoste} onValueChange={setFiltrePoste}>
-                <SelectTrigger className="w-full sm:w-36 h-9 text-sm">
-                  <div className="flex items-center">
-                    <Filter className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
-                    <SelectValue placeholder="Poste" />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="TOUS">Tous les postes</SelectItem>
-                  <SelectItem value="GARDIEN">Gardien</SelectItem>
-                  <SelectItem value="DEFENSEUR">Défenseur</SelectItem>
-                  <SelectItem value="MILIEU">Milieu</SelectItem>
-                  <SelectItem value="ATTAQUANT">Attaquant</SelectItem>
-                  <SelectItem value="AUCUN">Sans poste</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
           </div>
         </CardHeader>
