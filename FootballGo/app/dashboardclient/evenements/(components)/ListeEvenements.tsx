@@ -17,12 +17,14 @@ import { useEvenementsEquipe } from "../(hooks)/UseEvenement-Equipe";
 import { FiltreEvenements } from "@/app/(schema)/SchemaEvenementv2";
 import { Pagination } from "./Pagination";
 import { Evenement } from "../(types)/EvenementsResponse";
+import Link from "next/link";
 
 interface ListeEvenementsProps {
   equipeId: string;
+  estEntraineur?: boolean;
 }
 
-export default function ListeEvenements({ equipeId }: ListeEvenementsProps) {
+export default function ListeEvenements({ equipeId, estEntraineur = false }: ListeEvenementsProps) {
   const [filtres, setFiltres] = useState<FiltreEvenements>({
     type: "TOUS",
     page: 1,
@@ -145,6 +147,20 @@ export default function ListeEvenements({ equipeId }: ListeEvenementsProps) {
                   <span className="text-sm font-medium">Ma présence:</span>
                   {getPresenceStatut(evenement.maPresence?.statut)}
                 </div>
+                
+                {estEntraineur && (
+                  <>
+                    <Separator />
+                    <div className="flex justify-end space-x-2">
+                      <Link 
+                        href={`/dashboardclient/equipe/${equipeId}/evenements/${evenement.id}/modifier`}
+                        className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                      >
+                        Modifier
+                      </Link>
+                    </div>
+                  </>
+                )}
               </div>
             </CardContent>
           </Card>

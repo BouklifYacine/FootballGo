@@ -55,7 +55,7 @@ export default async function EvenementsPage({ params }: { params: { id: string 
         )}
       </div>
       
-      <ListeEvenements equipeId={equipeId} />
+      <ListeEvenements equipeId={equipeId} estEntraineur={estEntraineur} />
     </div>
   );
 }
