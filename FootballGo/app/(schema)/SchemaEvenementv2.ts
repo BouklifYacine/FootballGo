@@ -31,12 +31,13 @@ export const evenementSchema = z.discriminatedUnion("recurrent", [
 ]);
 
 export const filtreEvenementsSchema = z.object({
-    debut: z.string().optional(),
-    fin: z.string().optional(),
-    type: z.enum(["MATCH", "ENTRAINEMENT", "TOUS"]).optional(),
-    limit: z.number().min(1).max(50).optional(),
-    page: z.number().min(1).optional()
-  });
+  debut: z.string().optional(),
+  fin: z.string().optional(),
+  type: z.enum(["MATCH", "ENTRAINEMENT", "TOUS"]).default("TOUS"),
+  limit: z.number().min(1).max(50).default(5),
+  page: z.number().min(1).default(1)
+});
+
 export type EvenementUnique = z.infer<typeof evenementUniqueSchema>;
 export type EvenementRecurrent = z.infer<typeof evenementRecurrentSchema>;
 export type Evenement = z.infer<typeof evenementSchema>;

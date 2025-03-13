@@ -7,7 +7,7 @@ import { FiltreEvenements } from "@/app/(schema)/SchemaEvenementv2";
 import { EvenementListeSuccessResponse } from "../(types)/EvenementsResponse";
 
 export function useEvenementsEquipe(equipeId: string, filtres: FiltreEvenements = {}) {
-  return useQuery<EvenementListeSuccessResponse>({
+  return useQuery<EvenementListeSuccessResponse, Error>({
     queryKey: ["evenements-equipe", equipeId, filtres],
     queryFn: async () => {
       const result = await getEvenementsEquipe(equipeId, filtres);

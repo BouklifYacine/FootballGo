@@ -10,6 +10,7 @@ import {
   EvenementListeErrorResponse,
   EvenementListeResponse,
   EvenementListeSuccessResponse,
+  Evenement
 } from "../(types)/EvenementsResponse";
 import {
   FiltreEvenements,
@@ -20,7 +21,7 @@ dayjs.locale("fr");
 
 export async function getEvenementsEquipe(
   equipeId: string,
-  filtres: FiltreEvenements = {}
+  filtres: FiltreEvenements = { type: "TOUS", limit: 5, page: 1 }
 ): Promise<EvenementListeResponse> {
   try {
     // Validation des filtres
@@ -32,6 +33,9 @@ export async function getEvenementsEquipe(
       };
       return errorResponse;
     }
+
+    // Utiliser les filtres validés
+    const filtresValides = validationFiltres.data;
 
     // Récupération de l'utilisateur connecté
     const session = await auth();
@@ -62,28 +66,28 @@ export async function getEvenementsEquipe(
       return errorResponse;
     }
 
-    // Gestion des paramètres de pagination avec limite par défaut à 5
-    const limit = filtres.limit || 5;
-    const page = filtres.page || 1;
+    // Gestion des paramètres de pagination
+    const limit = filtresValides.limit;
+    const page = filtresValides.page;
     const skip = (page - 1) * limit;
 
     // Construction de la requête WHERE
     const where: Prisma.EvenementWhereInput = { equipeId };
 
-    if (filtres.debut || filtres.fin) {
+    if (filtresValides.debut || filtresValides.fin) {
       where.dateDebut = {};
 
-      if (filtres.debut) {
-        where.dateDebut.gte = new Date(filtres.debut);
+      if (filtresValides.debut) {
+        where.dateDebut.gte = new Date(filtresValides.debut);
       }
 
-      if (filtres.fin) {
-        where.dateDebut.lte = new Date(filtres.fin);
+      if (filtresValides.fin) {
+        where.dateDebut.lte = new Date(filtresValides.fin);
       }
     }
 
-    if (filtres.type && filtres.type !== "TOUS") {
-      where.typeEvenement = filtres.type;
+    if (filtresValides.type && filtresValides.type !== "TOUS") {
+      where.typeEvenement = filtresValides.type;
     }
 
     // Récupération des événements
@@ -104,7 +108,7 @@ export async function getEvenementsEquipe(
     const total = await prisma.evenement.count({ where });
 
     // Formatage des événements
-    const evenementsFormates = evenements.map((evenement) => {
+    const evenementsFormates: Evenement[] = evenements.map((evenement) => {
       const dateObj = dayjs(evenement.dateDebut);
 
       return {
@@ -131,7 +135,7 @@ export async function getEvenementsEquipe(
       evenementsPassés,
       pagination: {
         total,
-        pages: Math.ceil(total / limit),
+        pages: Math.max(1, Math.ceil(total / limit)),
         page,
         limit,
       }

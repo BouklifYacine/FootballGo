@@ -15,7 +15,8 @@ import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, MapPinIcon } from "lucide-react";
 import { useEvenementsEquipe } from "../(hooks)/UseEvenement-Equipe";
 import { FiltreEvenements } from "@/app/(schema)/SchemaEvenementv2";
-
+import { Pagination } from "./Pagination";
+import { Evenement } from "../(types)/EvenementsResponse";
 
 interface ListeEvenementsProps {
   equipeId: string;
@@ -24,15 +25,20 @@ interface ListeEvenementsProps {
 export default function ListeEvenements({ equipeId }: ListeEvenementsProps) {
   const [filtres, setFiltres] = useState<FiltreEvenements>({
     type: "TOUS",
+    page: 1,
+    limit: 5
   });
 
   const { data, isLoading, isError, error } = useEvenementsEquipe(equipeId, filtres);
 
-
   const handleTypeChange = (value: string) => {
     if (value === "TOUS" || value === "MATCH" || value === "ENTRAINEMENT") {
-      setFiltres(prev => ({ ...prev, type: value }));
+      setFiltres(prev => ({ ...prev, type: value, page: 1 })); // Réinitialiser à la page 1 lors du changement de filtre
     }
+  };
+
+  const handlePageChange = (page: number) => {
+    setFiltres(prev => ({ ...prev, page }));
   };
 
   const getPresenceStatut = (statut: string | undefined) => {
@@ -58,6 +64,61 @@ export default function ListeEvenements({ equipeId }: ListeEvenementsProps) {
       default:
         return <Badge>Autre</Badge>;
     }
+  };
+
+  // Fonction pour rendre la liste des événements
+  const renderEvenements = (evenements: Evenement[]) => {
+    if (evenements.length === 0) {
+      return (
+        <div className="text-center py-8 text-gray-500">
+          Aucun événement à afficher
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-4 mt-4">
+        {evenements.map((evenement) => (
+          <Card key={evenement.id} className={evenement.dateDebut < new Date() ? "opacity-80" : ""}>
+            <CardHeader className="pb-2">
+              <div className="flex justify-between items-start">
+                <CardTitle>{evenement.titre}</CardTitle>
+                {getTypeEvenement(evenement.typeEvenement)}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="flex items-center text-gray-500">
+                  <CalendarIcon size={16} className="mr-2" />
+                  <span>{evenement.dateDebutFormatee}</span>
+                </div>
+                
+                {evenement.lieu && (
+                  <div className="flex items-center text-gray-500">
+                    <MapPinIcon size={16} className="mr-2" />
+                    <span>{evenement.lieu}</span>
+                  </div>
+                )}
+                
+                {evenement.description && (
+                  <>
+                    <Separator />
+                    <p className="text-sm">{evenement.description}</p>
+                  </>
+                )}
+                
+                <Separator />
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium">Ma présence:</span>
+                  {getPresenceStatut(evenement.maPresence?.statut)}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
   };
 
   if (isLoading) {
@@ -98,105 +159,21 @@ export default function ListeEvenements({ equipeId }: ListeEvenementsProps) {
         </TabsList>
 
         <TabsContent value="a-venir">
-          {data?.evenementsAVenir.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              Aucun événement à venir
-            </div>
-          ) : (
-            <div className="space-y-4 mt-4">
-              {data?.evenementsAVenir.map((evenement) => (
-                <Card key={evenement.id}>
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between items-start">
-                      <CardTitle>{evenement.titre}</CardTitle>
-                      {getTypeEvenement(evenement.typeEvenement)}
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div className="flex items-center text-gray-500">
-                        <CalendarIcon size={16} className="mr-2" />
-                        <span>{evenement.dateDebutFormatee}</span>
-                      </div>
-                      
-                      {evenement.lieu && (
-                        <div className="flex items-center text-gray-500">
-                          <MapPinIcon size={16} className="mr-2" />
-                          <span>{evenement.lieu}</span>
-                        </div>
-                      )}
-                      
-                      {evenement.description && (
-                        <>
-                          <Separator />
-                          <p className="text-sm">{evenement.description}</p>
-                        </>
-                      )}
-                      
-                      <Separator />
-                      
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium">Ma présence:</span>
-                        {getPresenceStatut(evenement.maPresence?.statut)}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+          {renderEvenements(data?.evenementsAVenir || [])}
         </TabsContent>
 
         <TabsContent value="passes">
-          {data?.evenementsPassés.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              Aucun événement passé
-            </div>
-          ) : (
-            <div className="space-y-4 mt-4">
-              {data?.evenementsPassés.map((evenement) => (
-                <Card key={evenement.id} className="opacity-80">
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between items-start">
-                      <CardTitle>{evenement.titre}</CardTitle>
-                      {getTypeEvenement(evenement.typeEvenement)}
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div className="flex items-center text-gray-500">
-                        <CalendarIcon size={16} className="mr-2" />
-                        <span>{evenement.dateDebutFormatee}</span>
-                      </div>
-                      
-                      {evenement.lieu && (
-                        <div className="flex items-center text-gray-500">
-                          <MapPinIcon size={16} className="mr-2" />
-                          <span>{evenement.lieu}</span>
-                        </div>
-                      )}
-                      
-                      {evenement.description && (
-                        <>
-                          <Separator />
-                          <p className="text-sm">{evenement.description}</p>
-                        </>
-                      )}
-                      
-                      <Separator />
-                      
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium">Ma présence:</span>
-                        {getPresenceStatut(evenement.maPresence?.statut)}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+          {renderEvenements(data?.evenementsPassés || [])}
         </TabsContent>
       </Tabs>
+
+      {data?.pagination && (
+        <Pagination 
+          currentPage={data.pagination.page} 
+          totalPages={data.pagination.pages} 
+          onPageChange={handlePageChange} 
+        />
+      )}
     </div>
   );
 }
