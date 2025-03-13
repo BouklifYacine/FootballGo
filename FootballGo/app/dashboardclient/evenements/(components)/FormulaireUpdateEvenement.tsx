@@ -7,6 +7,7 @@ import "dayjs/locale/fr";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { CalendarIcon, Loader2 } from "lucide-react";
+import { isBefore } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -64,6 +65,10 @@ export default function FormulaireUpdateEvenement({
   const dateString = dateEvenement.format("YYYY-MM-DD");
   const heureString = dateEvenement.format("HH:mm");
 
+  // Date actuelle pour désactiver les dates passées
+  const aujourdhui = new Date();
+  aujourdhui.setHours(0, 0, 0, 0); // Début de la journée
+
   // Configuration du formulaire avec valeurs par défaut sécurisées
   const form = useForm<UpdateEvenement>({
     resolver: zodResolver(updateEvenementSchema),
@@ -76,6 +81,11 @@ export default function FormulaireUpdateEvenement({
       heure: heureString,
     },
   });
+
+  // Fonction pour désactiver les dates passées
+  const disabledDays = (date: Date) => {
+    return isBefore(date, aujourdhui);
+  };
 
   // Soumission du formulaire
   const onSubmit = (data: UpdateEvenement) => {
@@ -211,11 +221,15 @@ export default function FormulaireUpdateEvenement({
                             field.onChange(dayjs(date).format("YYYY-MM-DD"));
                           }
                         }}
+                        disabled={disabledDays}
                         locale={fr}
                         initialFocus
                       />
                     </PopoverContent>
                   </Popover>
+                  <FormDescription className="text-xs text-muted-foreground mt-1">
+                    Les dates dans le passé sont désactivées
+                  </FormDescription>
                   <FormMessage className="text-red-500" />
                 </FormItem>
               )}

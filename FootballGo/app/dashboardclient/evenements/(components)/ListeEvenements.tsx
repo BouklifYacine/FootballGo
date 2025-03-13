@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -53,26 +53,11 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
   // Vérifier si la page actuelle est valide par rapport au nombre total de pages
   const totalPages = data?.pagination?.pages || 1;
   
-  // Calculer la page courante sans modifier l'état directement
-  const safePageNumber = (data?.pagination && filtres.page > data.pagination.pages && data.pagination.pages > 0) 
+  // Calculer la page courante en tenant compte des limites
+  // Si la page demandée dépasse le nombre total de pages, on utilise la page 1
+  const currentPage = (data?.pagination && filtres.page > data.pagination.pages && data.pagination.pages > 0) 
     ? 1 
-    : filtres.page;
-  
-  // Utiliser la page calculée pour l'affichage
-  const currentPage = data?.pagination?.page || safePageNumber;
-
-  // Ajuster la page si nécessaire via un callback
-  const adjustPageIfNeeded = useCallback(() => {
-    if (data?.pagination && filtres.page > data.pagination.pages && data.pagination.pages > 0 && !isLoading) {
-      setFiltres(prev => ({ ...prev, page: 1 }));
-    }
-  }, [data?.pagination, filtres.page, isLoading]);
-
-  // Appeler le callback après le rendu si nécessaire
-  if (safePageNumber !== filtres.page) {
-    // Utiliser setTimeout pour éviter la mise à jour pendant le rendu
-    setTimeout(adjustPageIfNeeded, 0);
-  }
+    : (data?.pagination?.page || filtres.page);
 
   const handleTypeChange = (value: string) => {
     if (value === "TOUS" || value === "MATCH" || value === "ENTRAINEMENT") {
@@ -81,7 +66,9 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
   };
 
   const handlePageChange = (page: number) => {
-    setFiltres(prev => ({ ...prev, page }));
+    // Vérifier que la page est dans les limites valides
+    const pageToSet = Math.min(Math.max(1, page), totalPages);
+    setFiltres(prev => ({ ...prev, page: pageToSet }));
   };
 
   const handleTabChange = (value: string) => {
