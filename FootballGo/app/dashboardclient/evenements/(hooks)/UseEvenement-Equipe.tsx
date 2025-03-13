@@ -1,12 +1,26 @@
 // (hooks)/UseEvenement-Equipe.ts
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getEvenementsEquipe } from "../(server-actions)/EvenementEquipe-Actions";
 import { FiltreEvenements } from "@/app/(schema)/SchemaEvenementv2";
 import { EvenementListeSuccessResponse } from "../(types)/EvenementsResponse";
 
-export function useEvenementsEquipe(equipeId: string, filtres: FiltreEvenements = {}) {
+export function useEvenementsEquipe(equipeId: string, filtres: FiltreEvenements = { type: "TOUS", limit: 5, page: 1 }) {
+  const queryClient = useQueryClient();
+  
+  // Invalider le cache lors de la navigation
+  if (typeof window !== 'undefined') {
+    // Vérifier si nous venons de naviguer vers cette page
+    const isNewNavigation = sessionStorage.getItem('lastPath') !== window.location.pathname;
+    if (isNewNavigation) {
+      // Invalider les requêtes précédentes
+      queryClient.invalidateQueries({ queryKey: ["evenements-equipe"] });
+      // Mettre à jour le chemin actuel
+      sessionStorage.setItem('lastPath', window.location.pathname);
+    }
+  }
+
   return useQuery<EvenementListeSuccessResponse, Error>({
     queryKey: ["evenements-equipe", equipeId, filtres],
     queryFn: async () => {
@@ -28,7 +42,8 @@ export function useEvenementsEquipe(equipeId: string, filtres: FiltreEvenements 
         }
       };
     },
-    enabled: !!equipeId,
-    refetchOnWindowFocus: false,
+      enabled: !!equipeId,
+    
+    
   });
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -29,7 +29,33 @@ export default function ListeEvenements({ equipeId }: ListeEvenementsProps) {
     limit: 5
   });
 
+  const [activeTab, setActiveTab] = useState<string>("a-venir");
+
   const { data, isLoading, isError, error } = useEvenementsEquipe(equipeId, filtres);
+
+  // Vérifier si la page actuelle est valide par rapport au nombre total de pages
+  const totalPages = data?.pagination?.pages || 1;
+  
+  // Calculer la page courante sans modifier l'état directement
+  const safePageNumber = (data?.pagination && filtres.page > data.pagination.pages && data.pagination.pages > 0) 
+    ? 1 
+    : filtres.page;
+  
+  // Utiliser la page calculée pour l'affichage
+  const currentPage = data?.pagination?.page || safePageNumber;
+
+  // Ajuster la page si nécessaire via un callback
+  const adjustPageIfNeeded = useCallback(() => {
+    if (data?.pagination && filtres.page > data.pagination.pages && data.pagination.pages > 0 && !isLoading) {
+      setFiltres(prev => ({ ...prev, page: 1 }));
+    }
+  }, [data?.pagination, filtres.page, isLoading]);
+
+  // Appeler le callback après le rendu si nécessaire
+  if (safePageNumber !== filtres.page) {
+    // Utiliser setTimeout pour éviter la mise à jour pendant le rendu
+    setTimeout(adjustPageIfNeeded, 0);
+  }
 
   const handleTypeChange = (value: string) => {
     if (value === "TOUS" || value === "MATCH" || value === "ENTRAINEMENT") {
@@ -39,6 +65,12 @@ export default function ListeEvenements({ equipeId }: ListeEvenementsProps) {
 
   const handlePageChange = (page: number) => {
     setFiltres(prev => ({ ...prev, page }));
+  };
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    // Réinitialiser à la page 1 lors du changement d'onglet
+    setFiltres(prev => ({ ...prev, page: 1 }));
   };
 
   const getPresenceStatut = (statut: string | undefined) => {
@@ -138,7 +170,7 @@ export default function ListeEvenements({ equipeId }: ListeEvenementsProps) {
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Événements</h2>
         <Select 
-          defaultValue={filtres.type || "TOUS"}
+          value={filtres.type}
           onValueChange={handleTypeChange}
         >
           <SelectTrigger className="w-[180px]">
@@ -152,7 +184,7 @@ export default function ListeEvenements({ equipeId }: ListeEvenementsProps) {
         </Select>
       </div>
 
-      <Tabs defaultValue="a-venir">
+      <Tabs defaultValue="a-venir" value={activeTab} onValueChange={handleTabChange}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="a-venir">À venir ({data?.evenementsAVenir.length || 0})</TabsTrigger>
           <TabsTrigger value="passes">Passés ({data?.evenementsPassés.length || 0})</TabsTrigger>
@@ -169,8 +201,8 @@ export default function ListeEvenements({ equipeId }: ListeEvenementsProps) {
 
       {data?.pagination && (
         <Pagination 
-          currentPage={data.pagination.page} 
-          totalPages={data.pagination.pages} 
+          currentPage={currentPage} 
+          totalPages={totalPages} 
           onPageChange={handlePageChange} 
         />
       )}

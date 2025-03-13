@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import dayjs from "dayjs";
 import "dayjs/locale/fr";
 import { CalendarIcon, Loader2 } from "lucide-react";
+import { fr } from "date-fns/locale";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -147,14 +148,14 @@ export default function EvenementForm({ equipeId }: EvenementFormProps) {
                   name="titre"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Titre de l'événement *</FormLabel>
+                      <FormLabel>Titre de l&apos;événement *</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
                           placeholder="Entraînement hebdomadaire"
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-red-500" />
                     </FormItem>
                   )}
                 />
@@ -164,7 +165,7 @@ export default function EvenementForm({ equipeId }: EvenementFormProps) {
                   name="typeEvenement"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Type d'événement *</FormLabel>
+                      <FormLabel>Type d&apos;événement *</FormLabel>
                       <Select
                         onValueChange={
                           field.onChange as (value: string) => void
@@ -183,7 +184,7 @@ export default function EvenementForm({ equipeId }: EvenementFormProps) {
                           <SelectItem value="MATCH">Match</SelectItem>
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <FormMessage className="text-red-500" />
                     </FormItem>
                   )}
                 />
@@ -201,7 +202,10 @@ export default function EvenementForm({ equipeId }: EvenementFormProps) {
                         placeholder="Stade municipal, Gymnase..."
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormDescription>
+                      Indiquez l&apos;adresse ou le nom du lieu de l&apos;événement
+                    </FormDescription>
+                    <FormMessage className="text-red-500" />
                   </FormItem>
                 )}
               />
@@ -215,11 +219,11 @@ export default function EvenementForm({ equipeId }: EvenementFormProps) {
                     <FormControl>
                       <Textarea
                         {...field}
-                        placeholder="Informations complémentaires sur l'événement..."
+                        placeholder="Informations complémentaires sur l&apos;événement..."
                         className="min-h-[100px]"
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500" />
                   </FormItem>
                 )}
               />
@@ -251,16 +255,17 @@ export default function EvenementForm({ equipeId }: EvenementFormProps) {
                           </FormControl>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-  mode="single"
-  selected={field.value ? new Date(field.value) : undefined}
-  onSelect={(date) => field.onChange(date ? dayjs(date).format("YYYY-MM-DD") : "")}
-  initialFocus
-  disabled={(date) => dayjs(date).isBefore(dayjs().startOf('day'))}
-/>
+                          <Calendar
+                            mode="single"
+                            selected={field.value ? new Date(field.value) : undefined}
+                            onSelect={(date) => field.onChange(date ? dayjs(date).format("YYYY-MM-DD") : "")}
+                            initialFocus
+                            disabled={(date) => dayjs(date).isBefore(dayjs().startOf("day"))}
+                            locale={fr}
+                          />
                         </PopoverContent>
                       </Popover>
-                      <FormMessage />
+                      <FormMessage className="text-red-500" />
                     </FormItem>
                   )}
                 />
@@ -284,10 +289,10 @@ export default function EvenementForm({ equipeId }: EvenementFormProps) {
                 {isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Création de l'événement...
+                    Création de l&apos;événement...
                   </>
                 ) : (
-                  "Créer l'événement"
+                  "Créer l&apos;événement"
                 )}
               </Button>
             </form>
@@ -306,7 +311,7 @@ export default function EvenementForm({ equipeId }: EvenementFormProps) {
                   name="titre"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Titre de l'événement *</FormLabel>
+                      <FormLabel>Titre de l&apos;événement *</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
@@ -323,7 +328,7 @@ export default function EvenementForm({ equipeId }: EvenementFormProps) {
                   name="typeEvenement"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Type d'événement *</FormLabel>
+                      <FormLabel>Type d&apos;événement *</FormLabel>
                       <Select
                         onValueChange={
                           field.onChange as (value: string) => void
@@ -374,7 +379,7 @@ export default function EvenementForm({ equipeId }: EvenementFormProps) {
                     <FormControl>
                       <Textarea
                         {...field}
-                        placeholder="Informations complémentaires sur l'événement..."
+                        placeholder="Informations complémentaires sur l&apos;événement..."
                         className="min-h-[100px]"
                       />
                     </FormControl>
@@ -410,13 +415,14 @@ export default function EvenementForm({ equipeId }: EvenementFormProps) {
                           </FormControl>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-  mode="single"
-  selected={field.value ? new Date(field.value) : undefined}
-  onSelect={(date) => field.onChange(date ? dayjs(date).format("YYYY-MM-DD") : "")}
-  initialFocus
-  disabled={(date) => dayjs(date).isBefore(dayjs().startOf('day'))}
-/>
+                          <Calendar
+                            mode="single"
+                            selected={field.value ? new Date(field.value) : undefined}
+                            onSelect={(date) => field.onChange(date ? dayjs(date).format("YYYY-MM-DD") : "")}
+                            initialFocus
+                            disabled={(date) => dayjs(date).isBefore(dayjs().startOf('day'))}
+                            locale={fr}
+                          />
                         </PopoverContent>
                       </Popover>
                       <FormMessage />
@@ -465,21 +471,22 @@ export default function EvenementForm({ equipeId }: EvenementFormProps) {
                         </FormControl>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-  mode="single"
-  selected={field.value ? new Date(field.value) : undefined}
-  onSelect={(date) => field.onChange(date ? dayjs(date).format("YYYY-MM-DD") : "")}
-  initialFocus
-  disabled={(date) => {
-    const aujourdhui = dayjs().startOf('day');
-    const dateDebut = dayjs(formRecurrent.getValues().date);
-    const maxDate = dateDebut.add(6, 'month');
-    
-    return dayjs(date).isBefore(aujourdhui) || 
-           dayjs(date).isBefore(dateDebut) || 
-           dayjs(date).isAfter(maxDate);
-  }}
-/>
+                        <Calendar
+                          mode="single"
+                          selected={field.value ? new Date(field.value) : undefined}
+                          onSelect={(date) => field.onChange(date ? dayjs(date).format("YYYY-MM-DD") : "")}
+                          initialFocus
+                          disabled={(date) => {
+                            const aujourdhui = dayjs().startOf('day');
+                            const dateDebut = dayjs(formRecurrent.getValues().date);
+                            const maxDate = dateDebut.add(6, 'month');
+                            
+                            return dayjs(date).isBefore(aujourdhui) || 
+                                   dayjs(date).isBefore(dateDebut) || 
+                                   dayjs(date).isAfter(maxDate);
+                          }}
+                          locale={fr}
+                        />
                       </PopoverContent>
                     </Popover>
                     <FormDescription>
@@ -501,7 +508,7 @@ export default function EvenementForm({ equipeId }: EvenementFormProps) {
                         Jours de la semaine *
                       </FormLabel>
                       <FormDescription>
-                        Sélectionnez les jours où l'événement se répète
+                        Sélectionnez les jours où l&apos;événement se répète
                       </FormDescription>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
