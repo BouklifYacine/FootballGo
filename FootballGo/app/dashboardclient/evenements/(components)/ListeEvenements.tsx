@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, MapPinIcon, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CalendarIcon, MapPinIcon, Trash2, PencilIcon, Loader2 } from "lucide-react";
 import { useEvenementsEquipe } from "../(hooks)/UseEvenement-Equipe";
 import { useDeleteEvenement } from "../(hooks)/UseDeleteEvenement";
 import { FiltreEvenements } from "@/app/(schema)/SchemaEvenementv2";
@@ -176,22 +177,34 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
                 
                 {estEntraineur && (
                   <>
-                    <Separator />
-                    <div className="flex justify-end space-x-4">
+                    <Separator className="my-2" />
+                    <div className="flex justify-end space-x-2">
                       <Link 
                         href={`/dashboardclient/equipe/${equipeId}/evenements/${evenement.id}/modifier`}
-                        className="text-sm text-blue-600 hover:text-blue-800 font-medium"
                       >
-                        Modifier
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="text-blue-600 border-blue-600 hover:bg-blue-50 hover:text-blue-700"
+                        >
+                          <PencilIcon className="h-4 w-4 mr-1" />
+                          Modifier
+                        </Button>
                       </Link>
-                      <button
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700"
                         onClick={() => handleDeleteEvenement(evenement.id)}
-                        className="text-sm text-red-600 hover:text-red-800 font-medium flex items-center"
                         disabled={isDeletePending}
                       >
-                        <Trash2 className="h-4 w-4 mr-1" />
+                        {isDeletePending && evenementASupprimer === evenement.id ? (
+                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4 mr-1" />
+                        )}
                         Supprimer
-                      </button>
+                      </Button>
                     </div>
                   </>
                 )}
@@ -271,9 +284,15 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
             <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDeleteEvenement}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-red-600 hover:bg-red-700 text-white flex items-center"
+              disabled={isDeletePending}
             >
-              Supprimer
+              {isDeletePending ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4 mr-2" />
+              )}
+              Supprimer définitivement
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

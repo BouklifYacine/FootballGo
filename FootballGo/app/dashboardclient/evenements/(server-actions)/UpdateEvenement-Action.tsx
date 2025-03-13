@@ -135,6 +135,17 @@ export async function updateEvenement(
 
       nouvelleDate = nouvelleDateObj.toDate();
 
+      // Vérification que la date n'est pas dans le passé
+      const maintenant = new Date();
+      if (nouvelleDate < maintenant) {
+        const errorResponse: UpdateEvenementErrorResponse = {
+          success: false,
+          message: "La date de l'événement ne peut pas être dans le passé",
+          error: "Vous ne pouvez pas programmer un événement à une date antérieure à aujourd'hui.",
+        };
+        return errorResponse;
+      }
+
       const typeEvenement = parsedData.data.typeEvenement || evenement.typeEvenement;
       const evenementExiste = await evenementExisteDejaALaMemeHeure(
         equipeId,
