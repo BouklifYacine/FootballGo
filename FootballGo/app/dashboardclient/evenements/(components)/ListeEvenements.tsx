@@ -30,6 +30,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import PresenceEvenementForm from "./PresenceEvenementForm";
+import { StatutPresence } from "../../(interface-types)/Presence";
 
 interface ListeEvenementsProps {
   equipeId: string;
@@ -157,9 +159,18 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
                 
                 <Separator />
                 
-                <div className="flex justify-between items-center">
+                <div className="space-y-2">
                   <span className="text-sm font-medium">Ma présence:</span>
-                  {getPresenceStatut(evenement.maPresence?.statut)}
+                  {evenement.dateDebut >= new Date() ? (
+                    <PresenceEvenementForm 
+                      evenementId={evenement.id} 
+                      statutActuel={evenement.maPresence?.statut as StatutPresence | undefined} 
+                    />
+                  ) : (
+                    <div className="flex items-center">
+                      {getPresenceStatut(evenement.maPresence?.statut)}
+                    </div>
+                  )}
                 </div>
                 
                 {estEntraineur && (
