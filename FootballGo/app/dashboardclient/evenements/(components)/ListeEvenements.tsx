@@ -160,7 +160,7 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
                 <Separator />
                 
                 <div className="space-y-2">
-                  <span className="text-sm font-medium">Ma présence:</span>
+                  
                   {evenement.dateDebut >= new Date() ? (
                     <PresenceEvenementForm 
                       evenementId={evenement.id} 
