@@ -1,11 +1,12 @@
+import { auth } from "@/auth";
 import { prisma } from "@/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 interface RouteParams {
   params: { userId: string };
 }
-
-const idUtilisateurConnecte = "cm7sthoee0001irowu7bczcjg";
+const session = await auth()
+const idUtilisateurConnecte = session?.user?.id
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
   const { userId } = await params;

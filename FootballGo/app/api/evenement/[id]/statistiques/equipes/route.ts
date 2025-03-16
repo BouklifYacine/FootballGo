@@ -1,4 +1,5 @@
 import { StatistiqueEquipeSchema } from "@/app/(schema)/SchemaStatistique";
+import { auth } from "@/auth";
 import { prisma } from "@/prisma";
 import dayjs from "dayjs";
 import { NextRequest, NextResponse } from "next/server";
@@ -8,7 +9,9 @@ interface RouteParams {
 }
 
 dayjs.locale("fr");
-const idUtilisateur = "cm7stg4000000irowgylbnkpq";
+const session = await auth()
+const idUtilisateur = session?.user?.id
+
 
 export async function POST(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;

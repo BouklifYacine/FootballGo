@@ -131,11 +131,11 @@ export function SidebarClient({ userData, equipeData, ...props }: SidebarClientP
       items: [
         {
           title: "Mes statistiques",
-          url: "/dashboardclient/mes-statistiques",
+          url: "/dashboardclient/statistiquesjoueur",
         },
         {
           title: "Statistiques équipe",
-          url: "/dashboardclient/mon-equipe/statistiques",
+          url: "/dashboardclient/statistiquesequipe",
         },
       ],
     },
