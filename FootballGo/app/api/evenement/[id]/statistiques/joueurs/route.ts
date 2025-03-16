@@ -1,4 +1,5 @@
 import { StatistiqueJoueurSchema } from "@/app/(schema)/SchemaStatistique";
+import { auth } from "@/auth";
 import { prisma } from "@/prisma";
 import dayjs from "dayjs";
 import { NextRequest, NextResponse } from "next/server";
@@ -8,7 +9,8 @@ interface RouteParams {
 }
 
 dayjs.locale("fr");
-const idUtilisateur = "cm7sthoee0001irowu7bczcjg";
+const session = await auth()
+const idUtilisateur = session?.user?.id
 
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
@@ -118,7 +120,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   const statsExistantes = await prisma.statistiqueJoueur.findUnique({
     where: {
       userId_evenementId: {
-        userId: idUtilisateur,
+        userId: idUtilisateur || "",
         evenementId: id,
       },
     },
@@ -133,7 +135,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     try {
         const nouvellesStats = await prisma.statistiqueJoueur.create({
           data: {
-            userId: idUtilisateur,
+            userId: idUtilisateur || "",
             evenementId: id,
             buts: body.buts,
             passesdécisive: body.passesdécisive,
