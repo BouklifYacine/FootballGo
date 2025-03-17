@@ -33,6 +33,7 @@ import {
 import PresenceEvenementForm from "./PresenceEvenementForm";
 import { StatutPresence } from "../../(interface-types)/Presence";
 import FormulaireStatistiquesJoueur from "../../statistiquesjoueur/(components)/FormulaireStatistiquesJoueur";
+import { useSupprimerStatistiqueJoueur } from "../../statistiquesjoueur/(hook)/UseStatistiquejoueur";
 
 
 interface ListeEvenementsProps {
@@ -48,11 +49,16 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
   });
   const [evenementASupprimer, setEvenementASupprimer] = useState<string | null>(null);
   const [dialogSuppressionOuvert, setDialogSuppressionOuvert] = useState(false);
+  const [dialogSuppressionStatsOuvert, setDialogSuppressionStatsOuvert] = useState(false);
+  const [evenementStatsASupprimer, setEvenementStatsASupprimer] = useState<string | null>(null);
+  const [evenementAModifier, setEvenementAModifier] = useState<string | null>(null);
+  const [dialogModifierStatsOuvert, setDialogModifierStatsOuvert] = useState(false);
 
   const [activeTab, setActiveTab] = useState<string>("a-venir");
 
   const { data, isLoading, isError, error } = useEvenementsEquipe(equipeId, filtres);
   const { deleteEvenement, isPending: isDeletePending } = useDeleteEvenement(equipeId);
+  const { mutate: supprimerStats, isPending: isSuppressionStatsPending } = useSupprimerStatistiqueJoueur();
 
   // Vérifier si la page actuelle est valide par rapport au nombre total de pages
   const totalPages = data?.pagination?.pages || 1;
@@ -91,6 +97,23 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
       deleteEvenement(evenementASupprimer);
       setDialogSuppressionOuvert(false);
     }
+  };
+
+  const handleDeleteStats = (evenementId: string) => {
+    setEvenementStatsASupprimer(evenementId);
+    setDialogSuppressionStatsOuvert(true);
+  };
+
+  const confirmDeleteStats = () => {
+    if (evenementStatsASupprimer) {
+      supprimerStats(evenementStatsASupprimer);
+      setDialogSuppressionStatsOuvert(false);
+    }
+  };
+
+  const handleModifierStats = (evenementId: string) => {
+    setEvenementAModifier(evenementId);
+    setDialogModifierStatsOuvert(true);
   };
 
   const getPresenceStatut = (statut: string | undefined) => {
@@ -198,6 +221,38 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
                        !evenement.mesStatistiques && (
                         <FormulaireStatistiquesJoueur evenementId={evenement.id} />
                       )}
+
+                      {/* Boutons pour modifier et supprimer les statistiques (seulement pour les joueurs avec des stats) */}
+                      {evenement.typeEvenement === "MATCH" && 
+                       evenement.maPresence?.statut === "PRESENT" &&
+                       !estEntraineur && 
+                       evenement.mesStatistiques && (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-blue-600 border-blue-600 hover:bg-blue-50 hover:text-blue-700"
+                            onClick={() => handleModifierStats(evenement.id)}
+                          >
+                            <PencilIcon className="h-4 w-4 mr-1" />
+                            Modifier stats
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700"
+                            onClick={() => handleDeleteStats(evenement.id)}
+                            disabled={isSuppressionStatsPending}
+                          >
+                            {isSuppressionStatsPending && evenementStatsASupprimer === evenement.id ? (
+                              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4 mr-1" />
+                            )}
+                            Supprimer stats
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                   
@@ -299,6 +354,7 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
         )}
       </div>
 
+      {/* Dialog de suppression d'événement */}
       <AlertDialog open={dialogSuppressionOuvert} onOpenChange={setDialogSuppressionOuvert}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -321,6 +377,52 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
               )}
               Supprimer définitivement
             </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Dialog de suppression des statistiques */}
+      <AlertDialog open={dialogSuppressionStatsOuvert} onOpenChange={setDialogSuppressionStatsOuvert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer vos statistiques ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action est irréversible. Vous pourrez ajouter de nouvelles statistiques après la suppression.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteStats}
+              className="bg-red-600 hover:bg-red-700 text-white flex items-center"
+              disabled={isSuppressionStatsPending}
+            >
+              {isSuppressionStatsPending ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4 mr-2" />
+              )}
+              Supprimer définitivement
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Dialog de modification des statistiques */}
+      <AlertDialog open={dialogModifierStatsOuvert} onOpenChange={setDialogModifierStatsOuvert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Modifier vos statistiques</AlertDialogTitle>
+          </AlertDialogHeader>
+          <div className="py-4">
+            {evenementAModifier && <FormulaireStatistiquesJoueur 
+              evenementId={evenementAModifier} 
+              isModification={true}
+              onSubmitSuccess={() => setDialogModifierStatsOuvert(false)}
+            />}
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
