@@ -32,6 +32,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import PresenceEvenementForm from "./PresenceEvenementForm";
 import { StatutPresence } from "../../(interface-types)/Presence";
+import FormulaireStatistiquesJoueur from "../../statistiquesjoueur/(components)/FormulaireStatistiquesJoueur";
+
 
 interface ListeEvenementsProps {
   equipeId: string;
@@ -169,6 +171,15 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
                   ) : (
                     <div className="flex items-center">
                       {getPresenceStatut(evenement.maPresence?.statut)}
+                    </div>
+                  )}
+
+                  {/* Bouton pour ajouter des statistiques (seulement pour les joueurs, pas les entraîneurs) */}
+                  {evenement.typeEvenement === "MATCH" && 
+                   evenement.maPresence?.statut === "PRESENT" &&
+                   !estEntraineur && !evenement.mesStatistiques && (
+                    <div className="mt-2 flex justify-end">
+                      <FormulaireStatistiquesJoueur evenementId={evenement.id} />
                     </div>
                   )}
                 </div>

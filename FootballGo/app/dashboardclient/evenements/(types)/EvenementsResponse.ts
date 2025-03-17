@@ -6,6 +6,16 @@ export interface Presence {
   statut: "EN_ATTENTE" | "PRESENT" | "ABSENT" | "INCERTAIN";
 }
 
+export interface StatistiqueJoueur {
+  id: string;
+  buts: number;
+  passesdécisive: number;
+  minutesJouees: number;
+  note: number;
+  titulaire: boolean;
+  poste: string;
+}
+
 export interface Evenement {
   id: string;
   titre: string;
@@ -20,6 +30,7 @@ export interface Evenement {
   equipeId: string;
   maPresence: Presence | null;
   presences?: Presence[];
+  mesStatistiques?: StatistiqueJoueur | null;
 }
 
 export interface Pagination {
