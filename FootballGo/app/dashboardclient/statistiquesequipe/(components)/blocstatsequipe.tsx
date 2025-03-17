@@ -24,7 +24,7 @@ const BlocStatsEquipe = () => {
     <div className="flex flex-col md:flex-row justify-center gap-6 lg:gap-12 items-center p-4">
         <div className="bloc1 rounded-2xl w-full md:w-72 bg-white border border-gray-300 shadow-sm space-y-4 p-4">
           <div className="flex items-center justify-between">
-            <p className="text-lg font-medium text-gray-800">Victoires</p>
+            <p className="text-md font-medium tracking-tight text-gray-500">Victoires</p>
             <span className="block md:hidden text-gray-600">
             <ThumbsUp size={32} absoluteStrokeWidth className="text-green-500" />
             </span>
@@ -38,12 +38,12 @@ const BlocStatsEquipe = () => {
             </p>
           </div>
 
-          <p className="text-gray-600">Cette saison</p>
+          <p className="text-gray-500 text-sm">Cette saison</p>
         </div>
 
         <div className="bloc1 rounded-2xl w-full md:w-72 bg-white border border-gray-300 shadow-sm space-y-4 p-4">
           <div className="flex items-center justify-between">
-            <p className="text-lg font-medium text-gray-800">Nuls</p>
+            <p className="text-md font-medium tracking-tight text-gray-500">Nuls</p>
             <span className="block md:hidden text-gray-600">
               <TbPlayFootball size={30} />
             </span>
@@ -57,12 +57,12 @@ const BlocStatsEquipe = () => {
             </p>
           </div>
 
-          <p className="text-gray-600">Cette saison</p>
+          <p className="text-gray-500 text-sm">Cette saison</p>
         </div>
 
         <div className="bloc1 rounded-2xl w-full md:w-72 bg-white border border-gray-300 shadow-sm space-y-4 p-4">
           <div className="flex items-center justify-between">
-            <p className="text-lg font-medium text-gray-800">Défaites</p>
+            <p className="text-md font-medium tracking-tight text-gray-500">Défaites</p>
             <span className="block md:hidden text-gray-600">
             <ThumbsDown size={32} absoluteStrokeWidth className="text-red-500" />
             </span>
@@ -76,12 +76,12 @@ const BlocStatsEquipe = () => {
             </p>
           </div>
 
-          <p className="text-gray-600">Cette saison</p>
+          <p className="text-gray-500 text-sm">Cette saison</p>
         </div>
 
         <div className="bloc1 rounded-2xl w-full md:w-72 bg-white border border-gray-300 shadow-sm space-y-4 p-4">
           <div className="flex items-center justify-between">
-            <p className="text-lg font-medium text-gray-800">Buts Inscrit</p>
+            <p className="text-md font-medium tracking-tight text-gray-500">Buts Inscrit</p>
             <span className="block md:hidden text-gray-600">
             <IoIosFootball size={30} className="text-green-500"/>
             </span>
@@ -95,12 +95,12 @@ const BlocStatsEquipe = () => {
             </p>
           </div>
 
-          <p className="text-gray-600">Cette saison</p>
+          <p className="text-gray-500 text-sm">Cette saison</p>
         </div>
 
         <div className="bloc1 rounded-2xl w-full md:w-72 bg-white border border-gray-300 shadow-sm space-y-4 p-4">
           <div className="flex items-center justify-between">
-            <p className="text-lg font-medium text-gray-800">Buts encaissés</p>
+            <p className="text-md font-medium tracking-tight text-gray-500">Buts encaissés</p>
             <span className="block md:hidden text-gray-600">
             <IoIosFootball size={30} className="text-red-500"/>
             </span>
@@ -114,7 +114,7 @@ const BlocStatsEquipe = () => {
             </p>
           </div>
 
-          <p className="text-gray-600">Cette saison</p>
+          <p className="text-gray-500 text-sm">Cette saison</p>
         </div>
       </div>
     </>

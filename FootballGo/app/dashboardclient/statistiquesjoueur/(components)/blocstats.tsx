@@ -36,7 +36,7 @@ const BlockStats = () => {
       <div className="flex flex-col md:flex-row justify-center gap-6 lg:gap-12 items-center p-4">
         <div className="bloc1 rounded-2xl w-full md:w-72 bg-white border border-gray-300 shadow-sm space-y-4 p-4">
           <div className="flex items-center justify-between">
-            <p className="text-lg font-medium text-gray-800">Buts</p>
+            <p className="text-md font-medium tracking-tight text-gray-500">Buts</p>
             <span className="block md:hidden text-gray-600">
               <IoFootball size={30} />
             </span>
@@ -45,17 +45,17 @@ const BlockStats = () => {
             </span>
           </div>
           <div className="pt-6">
-            <p className="font-bold text-2xl tracking-tighter md:text-4xl text-gray-900">
+            <p className="font-bold text-2xl tracking-tighter md:text-4xl text-green-500">
               {data.totalButs}
             </p>
           </div>
 
-          <p className="text-gray-600">Cette saison</p>
+          <p className="text-gray-500 text-sm">Cette saison</p>
         </div>
 
         <div className="bloc1 rounded-2xl w-full md:w-72 bg-white border border-gray-300 shadow-sm space-y-4 p-4">
           <div className="flex items-center justify-between">
-            <p className="text-lg font-medium text-gray-800">Passes</p>
+            <p className="text-md font-medium tracking-tight text-gray-500">Passes</p>
             <span className="block md:hidden text-gray-600">
               <TbPlayFootball size={30} />
             </span>
@@ -64,17 +64,17 @@ const BlockStats = () => {
             </span>
           </div>
           <div className="pt-6">
-            <p className="font-bold text-2xl tracking-tighter md:text-4xl text-gray-900">
+            <p className="font-bold text-2xl tracking-tighter md:text-4xl text-green-500">
               {data.totalPasses}
             </p>
           </div>
 
-          <p className="text-gray-600">Cette saison</p>
+          <p className="text-gray-500 text-sm">Cette saison</p>
         </div>
 
         <div className="bloc1 rounded-2xl w-full md:w-72 bg-white border border-gray-300 shadow-sm space-y-4 p-4">
           <div className="flex items-center justify-between">
-            <p className="text-lg font-medium text-gray-800">TOTAL/GA</p>
+            <p className="text-md font-medium tracking-tight text-gray-500">TOTAL-GA</p>
             <span className="block md:hidden text-gray-600">
               <ChartNoAxesColumnIncreasing size={30} />
             </span>
@@ -83,17 +83,17 @@ const BlockStats = () => {
             </span>
           </div>
           <div className="pt-6">
-            <p className="font-bold text-2xl tracking-tighter md:text-4xl text-gray-900">
+            <p className="font-bold text-2xl tracking-tighter md:text-4xl text-green-500">
               {data.GA_TOTAL}
             </p>
           </div>
 
-          <p className="text-gray-600">Cette saison</p>
+          <p className="text-gray-500 text-sm">Cette saison</p>
         </div>
 
         <div className="bloc1 rounded-2xl w-full md:w-72 bg-white border border-gray-300 shadow-sm space-y-4 p-4">
           <div className="flex items-center justify-between">
-            <p className="text-lg font-medium text-gray-800">Victoires</p>
+            <p className="text-md font-medium tracking-tight text-gray-500">GA/90</p>
             <span className="block md:hidden text-gray-600">
               <Award size={30} />
             </span>
@@ -102,17 +102,17 @@ const BlockStats = () => {
             </span>
           </div>
           <div className="pt-6">
-            <p className="font-bold text-2xl tracking-tighter md:text-4xl text-gray-900">
+            <p className="font-bold text-2xl tracking-tighter md:text-4xl text-green-500">
               {data.GAPar90}
             </p>
           </div>
 
-          <p className="text-gray-600">Cette saison</p>
+          <p className="text-gray-500 text-sm">Cette saison</p>
         </div>
 
         <div className="bloc1 rounded-2xl w-full md:w-72 bg-white border border-gray-300 shadow-sm space-y-4 p-4">
           <div className="flex items-center justify-between">
-            <p className="text-lg font-medium text-gray-800">NoteMoyenne</p>
+            <p className="text-md font-medium tracking-tight text-gray-500">NoteMoyenne</p>
             <span className="block md:hidden text-gray-600">
               <ChartNoAxesCombined size={30} />
             </span>
@@ -121,12 +121,12 @@ const BlockStats = () => {
             </span>
           </div>
           <div className="pt-6">
-            <p className="font-bold text-2xl tracking-tighter md:text-4xl text-gray-900">
+            <p className="font-bold text-2xl tracking-tighter md:text-4xl text-green-500">
               {data.noteMoyenne}
             </p>
           </div>
 
-          <p className="text-gray-600">Cette saison</p>
+          <p className="text-gray-500 text-sm">Cette saison</p>
         </div>
       </div>
     </>
