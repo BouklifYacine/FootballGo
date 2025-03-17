@@ -130,97 +130,115 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
 
     return (
       <div className="space-y-4 mt-4">
-        {evenements.map((evenement) => (
-          <Card key={evenement.id} className={evenement.dateDebut < new Date() ? "opacity-80" : ""}>
-            <CardHeader className="pb-2">
-              <div className="flex justify-between items-start">
-                <CardTitle>{evenement.titre}</CardTitle>
-                {getTypeEvenement(evenement.typeEvenement)}
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex items-center text-gray-500">
-                  <CalendarIcon size={16} className="mr-2" />
-                  <span>{evenement.dateDebutFormatee}</span>
+        {evenements.map((evenement) => {
+          // Debug pour voir si les statistiques sont correctement récupérées
+          console.log("Événement:", evenement.id, "Stats:", evenement.mesStatistiques);
+          
+          return (
+            <Card key={evenement.id} className={evenement.dateDebut < new Date() ? "opacity-80" : ""}>
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-start">
+                  <CardTitle>{evenement.titre}</CardTitle>
+                  {getTypeEvenement(evenement.typeEvenement)}
                 </div>
-                
-                {evenement.lieu && (
-                  <div className="flex items-center text-gray-500">
-                    <MapPinIcon size={16} className="mr-2" />
-                    <span>{evenement.lieu}</span>
-                  </div>
-                )}
-                
-                {evenement.description && (
-                  <>
-                    <Separator />
-                    <p className="text-sm">{evenement.description}</p>
-                  </>
-                )}
-                
-                <Separator />
-                
+              </CardHeader>
+              <CardContent>
                 <div className="space-y-2">
+                  <div className="flex items-center text-gray-500">
+                    <CalendarIcon size={16} className="mr-2" />
+                    <span>{evenement.dateDebutFormatee}</span>
+                  </div>
                   
-                  {evenement.dateDebut >= new Date() ? (
-                    <PresenceEvenementForm 
-                      evenementId={evenement.id} 
-                      statutActuel={evenement.maPresence?.statut as StatutPresence | undefined} 
-                    />
-                  ) : (
-                    <div className="flex items-center">
-                      {getPresenceStatut(evenement.maPresence?.statut)}
+                  {evenement.lieu && (
+                    <div className="flex items-center text-gray-500">
+                      <MapPinIcon size={16} className="mr-2" />
+                      <span>{evenement.lieu}</span>
                     </div>
                   )}
+                  
+                  {evenement.description && (
+                    <>
+                      <Separator />
+                      <p className="text-sm">{evenement.description}</p>
+                    </>
+                  )}
+                  
+                  <Separator />
+                  
+                  <div className="space-y-2">
+                    
+                    {evenement.dateDebut >= new Date() ? (
+                      <PresenceEvenementForm 
+                        evenementId={evenement.id} 
+                        statutActuel={evenement.maPresence?.statut as StatutPresence | undefined} 
+                      />
+                    ) : (
+                      <div className="flex items-center">
+                        {getPresenceStatut(evenement.maPresence?.statut)}
+                      </div>
+                    )}
 
-                  {/* Bouton pour ajouter des statistiques (seulement pour les joueurs, pas les entraîneurs) */}
-                  {evenement.typeEvenement === "MATCH" && 
-                   evenement.maPresence?.statut === "PRESENT" &&
-                   !estEntraineur && !evenement.mesStatistiques && (
-                    <div className="mt-2 flex justify-end">
-                      <FormulaireStatistiquesJoueur evenementId={evenement.id} />
-                    </div>
-                  )}
-                </div>
-                
-                {estEntraineur && (
-                  <>
-                    <Separator className="my-2" />
-                    <div className="flex justify-end space-x-2">
-                      <Link 
-                        href={`/dashboardclient/equipe/${equipeId}/evenements/${evenement.id}/modifier`}
-                      >
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="text-blue-600 border-blue-600 hover:bg-blue-50 hover:text-blue-700"
+                    <div className="mt-2 flex justify-end space-x-2">
+                      {/* Bouton pour les statistiques de l'équipe (seulement pour les entraîneurs) */}
+                      {evenement.typeEvenement === "MATCH" && estEntraineur && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700"
                         >
                           <PencilIcon className="h-4 w-4 mr-1" />
-                          Modifier
+                          Stats équipe
                         </Button>
-                      </Link>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700"
-                        onClick={() => handleDeleteEvenement(evenement.id)}
-                        disabled={isDeletePending}
-                      >
-                        {isDeletePending && evenementASupprimer === evenement.id ? (
-                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-4 w-4 mr-1" />
-                        )}
-                        Supprimer
-                      </Button>
+                      )}
+
+                      {/* Bouton pour ajouter des statistiques (seulement pour les joueurs, pas les entraîneurs) */}
+                      {evenement.typeEvenement === "MATCH" && 
+                       evenement.maPresence?.statut === "PRESENT" &&
+                       !estEntraineur && 
+                       !evenement.mesStatistiques && (
+                        <FormulaireStatistiquesJoueur evenementId={evenement.id} />
+                      )}
                     </div>
-                  </>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                  </div>
+                  
+                  {estEntraineur && (
+                    <>
+                      <Separator className="my-2" />
+                      <div className="flex justify-end space-x-2">
+                        <Link 
+                          href={`/dashboardclient/equipe/${equipeId}/evenements/${evenement.id}/modifier`}
+                        >
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="text-blue-600 border-blue-600 hover:bg-blue-50 hover:text-blue-700"
+                          >
+                            <PencilIcon className="h-4 w-4 mr-1" />
+                            Modifier
+                          </Button>
+                        </Link>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700"
+                          onClick={() => handleDeleteEvenement(evenement.id)}
+                          disabled={isDeletePending}
+                        >
+                          {isDeletePending && evenementASupprimer === evenement.id ? (
+                            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4 mr-1" />
+                          )}
+                          Supprimer
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     );
   };

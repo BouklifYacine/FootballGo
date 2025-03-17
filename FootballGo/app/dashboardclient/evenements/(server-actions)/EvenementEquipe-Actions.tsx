@@ -100,16 +100,25 @@ export async function getEvenementsEquipe(
         presences: {
           where: { userId },
           select: { id: true, statut: true },
-        },
+        }
       },
     });
 
-    // Comptage du total d'événements pour la pagination
-    const total = await prisma.evenement.count({ where });
+    const idsEvenements = evenements.map(e => e.id);
+    
+    const statistiquesJoueur = await prisma.statistiqueJoueur.findMany({
+      where: {
+        userId,
+        evenementId: { in: idsEvenements }
+      }
+    });
 
-    // Formatage des événements
+
+    const total = await prisma.evenement.count({ where });
     const evenementsFormates: Evenement[] = evenements.map((evenement) => {
       const dateObj = dayjs(evenement.dateDebut);
+      
+      const statsJoueur = statistiquesJoueur.find(s => s.evenementId === evenement.id) || null;
 
       return {
         ...evenement,
@@ -117,10 +126,10 @@ export async function getEvenementsEquipe(
         date: dateObj.format("YYYY-MM-DD"),
         heure: dateObj.format("HH:mm"),
         maPresence: evenement.presences[0] || null,
+        mesStatistiques: statsJoueur
       };
     });
 
-    // Distinction entre événements à venir et passés
     const maintenant = new Date();
     const evenementsAVenir = evenementsFormates.filter(
       e => new Date(e.dateDebut) > maintenant
