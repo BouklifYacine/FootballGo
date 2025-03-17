@@ -7,7 +7,7 @@ export function useStatistiqueEquipeFDP(id: string) {
     queryKey: ["statistique-equipe", id],
     queryFn: async () => {
       const { data } = await axios.get<StatistiqueEquipeReponse>(
-        `/api/user/${id}/statistiquesteamFDP`
+        `/api/user/${id}/statistiquesteam`
       );
       return data.StatistiqueEquipe;
     },
