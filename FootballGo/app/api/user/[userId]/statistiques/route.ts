@@ -5,11 +5,12 @@ import { NextRequest, NextResponse } from "next/server";
 interface RouteParams {
   params: { userId: string };
 }
-const session = await auth()
-const idUtilisateurConnecte = session?.user?.id
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
   const { userId } = await params;
+
+  const session = await auth()
+const idUtilisateurConnecte = session?.user?.id
   
   try {
     const utilisateur = await prisma.user.findUnique({
@@ -111,11 +112,6 @@ statistiquesJoueur.forEach(stat => {
     });
 
     const statsAggregees = {
-      joueur: {
-        id: utilisateur.id,
-        nom: utilisateur.name,
-        image: utilisateur.image
-      },
       statistiquesGlobales: {
         totalMatchs,
         totalButs,
@@ -125,23 +121,23 @@ statistiquesJoueur.forEach(stat => {
         GA_TOTAL,
         GA_Match,
         tempsJeuTotal,
-        butsPar90: butsPar90.toFixed(2),
-        passesPar90: passesPar90.toFixed(2),
-        GAPar90: GAPar90.toFixed(2)
+        butsPar90: Number(butsPar90.toFixed(2)),
+        passesPar90: Number(passesPar90.toFixed(2)),
+        GAPar90: Number(GAPar90.toFixed(2))
       },
-      statsParPoste,
-      detailMatchs: statistiquesJoueur.map(stat => ({
-        matchId: stat.evenementId,
-        titre: stat.evenement.titre,
-        date: stat.evenement.dateDebut,
-        equipe: stat.evenement.equipe.nom,
-        buts: stat.buts,
-        passes: stat.passesdécisive,
-        note: stat.note,
-        poste: stat.poste,
-        titulaire: stat.titulaire,
-        minutesJouees: stat.minutesJouees || (stat.titulaire ? 90 : 30)
-      }))
+      // statsParPoste,
+      // detailMatchs: statistiquesJoueur.map(stat => ({
+      //   matchId: stat.evenementId,
+      //   titre: stat.evenement.titre,
+      //   date: stat.evenement.dateDebut,
+      //   equipe: stat.evenement.equipe.nom,
+      //   buts: stat.buts,
+      //   passes: stat.passesdécisive,
+      //   note: stat.note,
+      //   poste: stat.poste,
+      //   titulaire: stat.titulaire,
+      //   minutesJouees: stat.minutesJouees || (stat.titulaire ? 90 : 30)
+      // }))
     };
 
     return NextResponse.json(statsAggregees);
