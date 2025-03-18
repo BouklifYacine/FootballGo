@@ -30,6 +30,12 @@ import { useSupprimerStatistiqueEquipe } from "../../statistiquesequipe/(hook)/u
 import FormulaireStatistiquesJoueur from "../../statistiquesjoueur/(components)/FormulaireStatistiquesJoueur";
 import FormulaireStatistiquesEquipe from "../../statistiquesequipe/(components)/FormulaireStatistiquesEquipe";
 import EvenementCard from "./EvenementCard";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface ListeEvenementsProps {
   equipeId: string;
@@ -254,7 +260,6 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Dialog de suppression des statistiques joueur */}
       <AlertDialog open={dialogSuppressionStatsOuvert} onOpenChange={setDialogSuppressionStatsOuvert}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -279,34 +284,54 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
       </AlertDialog>
 
       {/* Dialog de modification des statistiques joueur */}
-      {dialogModifierStatsOuvert && evenementAModifier && (
-        <FormulaireStatistiquesJoueur 
-          evenementId={evenementAModifier} 
-          isModification={true}
-          onSubmitSuccess={() => setDialogModifierStatsOuvert(false)}
-        />
-      )}
+      <Dialog open={dialogModifierStatsOuvert} onOpenChange={setDialogModifierStatsOuvert}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Modifier vos statistiques</DialogTitle>
+          </DialogHeader>
+          {evenementAModifier && (
+            <FormulaireStatistiquesJoueur 
+              evenementId={evenementAModifier} 
+              isModification={true}
+              onSubmitSuccess={() => setDialogModifierStatsOuvert(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Dialog d'ajout de statistiques d'équipe */}
-      {dialogAjouterStatsEquipeOuvert && evenementStatsEquipe && (
-        <FormulaireStatistiquesEquipe 
-          evenementId={evenementStatsEquipe}
-          equipeId={equipeId}
-          onSubmitSuccess={() => setDialogAjouterStatsEquipeOuvert(false)}
-        />
-      )}
+      <Dialog open={dialogAjouterStatsEquipeOuvert} onOpenChange={setDialogAjouterStatsEquipeOuvert}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Ajouter les statistiques de l&apos;équipe</DialogTitle>
+          </DialogHeader>
+          {evenementStatsEquipe && (
+            <FormulaireStatistiquesEquipe 
+              evenementId={evenementStatsEquipe}
+              equipeId={equipeId}
+              onSubmitSuccess={() => setDialogAjouterStatsEquipeOuvert(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Dialog de modification des statistiques d'équipe */}
-      {dialogModifierStatsEquipeOuvert && evenementStatsEquipe && (
-        <FormulaireStatistiquesEquipe 
-          evenementId={evenementStatsEquipe}
-          equipeId={equipeId}
-          isModification={true}
-          onSubmitSuccess={() => setDialogModifierStatsEquipeOuvert(false)}
-        />
-      )}
+      <Dialog open={dialogModifierStatsEquipeOuvert} onOpenChange={setDialogModifierStatsEquipeOuvert}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Modifier les statistiques de l&apos;équipe</DialogTitle>
+          </DialogHeader>
+          {evenementStatsEquipe && (
+            <FormulaireStatistiquesEquipe 
+              evenementId={evenementStatsEquipe}
+              equipeId={equipeId}
+              isModification={true}
+              onSubmitSuccess={() => setDialogModifierStatsEquipeOuvert(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
-      {/* Dialog de suppression des statistiques d'équipe */}
       <AlertDialog open={dialogSuppressionStatsEquipeOuvert} onOpenChange={setDialogSuppressionStatsEquipeOuvert}>
         <AlertDialogContent>
           <AlertDialogHeader>
