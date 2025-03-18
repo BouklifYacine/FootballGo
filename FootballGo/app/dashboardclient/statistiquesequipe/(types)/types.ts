@@ -36,8 +36,7 @@ export interface ServerActionResponse {
     tirsCadres?: number | null;
     domicile: boolean;
     competition: Competition;
-    adversaire: string;
-    [key: string]: unknown; // Pour les champs additionnels retournés par Prisma
+    adversaire: string;// Pour les champs additionnels retournés par Prisma
   };
   erreurs?: unknown;
 }

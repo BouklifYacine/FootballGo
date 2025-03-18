@@ -1,5 +1,5 @@
 // (types)/EventResponse.ts
-
+import { StatistiqueEquipe } from "../../statistiquesequipe/(types)/types";
 
 export interface Presence {
   id: string;
@@ -31,6 +31,7 @@ export interface Evenement {
   maPresence: Presence | null;
   presences?: Presence[];
   mesStatistiques?: StatistiqueJoueur | null;
+  statistiquesEquipe?: StatistiqueEquipe | null;
 }
 
 export interface Pagination {

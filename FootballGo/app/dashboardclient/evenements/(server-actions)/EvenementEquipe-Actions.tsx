@@ -106,6 +106,7 @@ export async function getEvenementsEquipe(
 
     const idsEvenements = evenements.map(e => e.id);
     
+    // Récupération des statistiques joueur
     const statistiquesJoueur = await prisma.statistiqueJoueur.findMany({
       where: {
         userId,
@@ -113,12 +114,20 @@ export async function getEvenementsEquipe(
       }
     });
 
+    // Récupération des statistiques équipe
+    const statistiquesEquipe = await prisma.statistiqueEquipe.findMany({
+      where: {
+        equipeId,
+        evenementId: { in: idsEvenements }
+      }
+    });
 
     const total = await prisma.evenement.count({ where });
-    const evenementsFormates: Evenement[] = evenements.map((evenement) => {
+    const evenementsFormates: any[] = evenements.map((evenement) => {
       const dateObj = dayjs(evenement.dateDebut);
       
       const statsJoueur = statistiquesJoueur.find(s => s.evenementId === evenement.id) || null;
+      const statsEquipe = statistiquesEquipe.find(s => s.evenementId === evenement.id) || null;
 
       return {
         ...evenement,
@@ -126,7 +135,8 @@ export async function getEvenementsEquipe(
         date: dateObj.format("YYYY-MM-DD"),
         heure: dateObj.format("HH:mm"),
         maPresence: evenement.presences[0] || null,
-        mesStatistiques: statsJoueur
+        mesStatistiques: statsJoueur,
+        statistiquesEquipe: statsEquipe
       };
     });
 

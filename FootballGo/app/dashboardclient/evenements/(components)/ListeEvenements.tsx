@@ -13,7 +13,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, MapPinIcon, Trash2, PencilIcon, Loader2 } from "lucide-react";
+import { CalendarIcon, MapPinIcon, Trash2, PencilIcon, Loader2, ListPlus } from "lucide-react";
 import { useEvenementsEquipe } from "../(hooks)/UseEvenement-Equipe";
 import { useDeleteEvenement } from "../(hooks)/UseDeleteEvenement";
 import { FiltreEvenements } from "@/app/(schema)/SchemaEvenementv2";
@@ -34,7 +34,8 @@ import PresenceEvenementForm from "./PresenceEvenementForm";
 import { StatutPresence } from "../../(interface-types)/Presence";
 import FormulaireStatistiquesJoueur from "../../statistiquesjoueur/(components)/FormulaireStatistiquesJoueur";
 import { useSupprimerStatistiqueJoueur } from "../../statistiquesjoueur/(hook)/UseStatistiquejoueur";
-
+import { useSupprimerStatistiqueEquipe } from "../../statistiquesequipe/(hook)/useStatistiqueEquipe";
+import FormulaireStatistiquesEquipe from "../../statistiquesequipe/(components)/FormulaireStatistiquesEquipe";
 
 interface ListeEvenementsProps {
   equipeId: string;
@@ -53,12 +54,19 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
   const [evenementStatsASupprimer, setEvenementStatsASupprimer] = useState<string | null>(null);
   const [evenementAModifier, setEvenementAModifier] = useState<string | null>(null);
   const [dialogModifierStatsOuvert, setDialogModifierStatsOuvert] = useState(false);
+  
+  // Nouveaux états pour les statistiques d'équipe
+  const [dialogAjouterStatsEquipeOuvert, setDialogAjouterStatsEquipeOuvert] = useState(false);
+  const [dialogModifierStatsEquipeOuvert, setDialogModifierStatsEquipeOuvert] = useState(false);
+  const [dialogSuppressionStatsEquipeOuvert, setDialogSuppressionStatsEquipeOuvert] = useState(false);
+  const [evenementStatsEquipe, setEvenementStatsEquipe] = useState<string | null>(null);
 
   const [activeTab, setActiveTab] = useState<string>("a-venir");
 
   const { data, isLoading, isError, error } = useEvenementsEquipe(equipeId, filtres);
   const { deleteEvenement, isPending: isDeletePending } = useDeleteEvenement(equipeId);
   const { mutate: supprimerStats, isPending: isSuppressionStatsPending } = useSupprimerStatistiqueJoueur();
+  const { mutate: supprimerStatsEquipe, isPending: isSuppressionStatsEquipePending } = useSupprimerStatistiqueEquipe();
 
   // Vérifier si la page actuelle est valide par rapport au nombre total de pages
   const totalPages = data?.pagination?.pages || 1;
@@ -116,6 +124,29 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
     setDialogModifierStatsOuvert(true);
   };
 
+  // Fonctions pour gérer les statistiques d'équipe
+  const handleAjouterStatsEquipe = (evenementId: string) => {
+    setEvenementStatsEquipe(evenementId);
+    setDialogAjouterStatsEquipeOuvert(true);
+  };
+
+  const handleModifierStatsEquipe = (evenementId: string) => {
+    setEvenementStatsEquipe(evenementId);
+    setDialogModifierStatsEquipeOuvert(true);
+  };
+
+  const handleDeleteStatsEquipe = (evenementId: string) => {
+    setEvenementStatsEquipe(evenementId);
+    setDialogSuppressionStatsEquipeOuvert(true);
+  };
+
+  const confirmDeleteStatsEquipe = () => {
+    if (evenementStatsEquipe) {
+      supprimerStatsEquipe({ evenementId: evenementStatsEquipe, equipeId });
+      setDialogSuppressionStatsEquipeOuvert(false);
+    }
+  };
+
   const getPresenceStatut = (statut: string | undefined) => {
     switch (statut) {
       case "PRESENT":
@@ -155,7 +186,7 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
       <div className="space-y-4 mt-4">
         {evenements.map((evenement) => {
           // Debug pour voir si les statistiques sont correctement récupérées
-          console.log("Événement:", evenement.id, "Stats:", evenement.mesStatistiques);
+          console.log("Événement:", evenement.id, "Stats joueur:", evenement.mesStatistiques, "Stats équipe:", evenement.statistiquesEquipe);
           
           return (
             <Card key={evenement.id} className={evenement.dateDebut < new Date() ? "opacity-80" : ""}>
@@ -202,16 +233,51 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
                     )}
 
                     <div className="mt-2 flex justify-end space-x-2">
-                      {/* Bouton pour les statistiques de l'équipe (seulement pour les entraîneurs) */}
-                      {evenement.typeEvenement === "MATCH" && estEntraineur && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700"
-                        >
-                          <PencilIcon className="h-4 w-4 mr-1" />
-                          Stats équipe
-                        </Button>
+                      {/* Boutons pour les statistiques d'équipe (seulement pour les entraîneurs) */}
+                      {evenement.typeEvenement === "MATCH" && 
+                       estEntraineur && 
+                       evenement.maPresence?.statut === "PRESENT" && (
+                        <>
+                          {!evenement.statistiquesEquipe ? (
+                            // Bouton pour ajouter des statistiques d'équipe
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700"
+                              onClick={() => handleAjouterStatsEquipe(evenement.id)}
+                            >
+                              <ListPlus className="h-4 w-4 mr-1" />
+                              Ajouter stats équipe
+                            </Button>
+                          ) : (
+                            // Boutons pour modifier et supprimer les statistiques d'équipe
+                            <>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-blue-600 border-blue-600 hover:bg-blue-50 hover:text-blue-700"
+                                onClick={() => handleModifierStatsEquipe(evenement.id)}
+                              >
+                                <PencilIcon className="h-4 w-4 mr-1" />
+                                Modifier stats équipe
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700"
+                                onClick={() => handleDeleteStatsEquipe(evenement.id)}
+                                disabled={isSuppressionStatsEquipePending}
+                              >
+                                {isSuppressionStatsEquipePending && evenementStatsEquipe === evenement.id ? (
+                                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-4 w-4 mr-1" />
+                                )}
+                                Supprimer stats équipe
+                              </Button>
+                            </>
+                          )}
+                        </>
                       )}
 
                       {/* Bouton pour ajouter des statistiques (seulement pour les joueurs, pas les entraîneurs) */}
@@ -381,7 +447,7 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Dialog de suppression des statistiques */}
+      {/* Dialog de suppression des statistiques joueur */}
       <AlertDialog open={dialogSuppressionStatsOuvert} onOpenChange={setDialogSuppressionStatsOuvert}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -408,7 +474,7 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Dialog de modification des statistiques */}
+      {/* Dialog de modification des statistiques joueur */}
       <AlertDialog open={dialogModifierStatsOuvert} onOpenChange={setDialogModifierStatsOuvert}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -423,6 +489,72 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Dialog d'ajout des statistiques équipe */}
+      <AlertDialog open={dialogAjouterStatsEquipeOuvert} onOpenChange={setDialogAjouterStatsEquipeOuvert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Ajouter les statistiques de l&apos;équipe</AlertDialogTitle>
+          </AlertDialogHeader>
+          <div className="py-4">
+            {evenementStatsEquipe && <FormulaireStatistiquesEquipe 
+              evenementId={evenementStatsEquipe}
+              equipeId={equipeId} 
+              onSubmitSuccess={() => setDialogAjouterStatsEquipeOuvert(false)}
+            />}
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Dialog de modification des statistiques équipe */}
+      <AlertDialog open={dialogModifierStatsEquipeOuvert} onOpenChange={setDialogModifierStatsEquipeOuvert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Modifier les statistiques de l&apos;équipe</AlertDialogTitle>
+          </AlertDialogHeader>
+          <div className="py-4">
+            {evenementStatsEquipe && <FormulaireStatistiquesEquipe 
+              evenementId={evenementStatsEquipe}
+              equipeId={equipeId} 
+              isModification={true}
+              onSubmitSuccess={() => setDialogModifierStatsEquipeOuvert(false)}
+            />}
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Dialog de suppression des statistiques équipe */}
+      <AlertDialog open={dialogSuppressionStatsEquipeOuvert} onOpenChange={setDialogSuppressionStatsEquipeOuvert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer les statistiques de l&apos;équipe ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action est irréversible. Vous pourrez ajouter de nouvelles statistiques après la suppression.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteStatsEquipe}
+              className="bg-red-600 hover:bg-red-700 text-white flex items-center"
+              disabled={isSuppressionStatsEquipePending}
+            >
+              {isSuppressionStatsEquipePending ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4 mr-2" />
+              )}
+              Supprimer définitivement
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
