@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
@@ -10,16 +9,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { CalendarIcon, MapPinIcon, Trash2, PencilIcon, Loader2, ListPlus, MoreHorizontal } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { useEvenementsEquipe } from "../(hooks)/UseEvenement-Equipe";
 import { useDeleteEvenement } from "../(hooks)/UseDeleteEvenement";
 import { FiltreEvenements } from "@/app/(schema)/SchemaEvenementv2";
 import { Pagination } from "./Pagination";
 import { Evenement } from "../(types)/EvenementsResponse";
-import Link from "next/link";
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -30,18 +25,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import PresenceEvenementForm from "./PresenceEvenementForm";
-import { StatutPresence } from "../../(interface-types)/Presence";
-import FormulaireStatistiquesJoueur from "../../statistiquesjoueur/(components)/FormulaireStatistiquesJoueur";
 import { useSupprimerStatistiqueJoueur } from "../../statistiquesjoueur/(hook)/UseStatistiquejoueur";
 import { useSupprimerStatistiqueEquipe } from "../../statistiquesequipe/(hook)/useStatistiqueEquipe";
+import FormulaireStatistiquesJoueur from "../../statistiquesjoueur/(components)/FormulaireStatistiquesJoueur";
 import FormulaireStatistiquesEquipe from "../../statistiquesequipe/(components)/FormulaireStatistiquesEquipe";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import EvenementCard from "./EvenementCard";
 
 interface ListeEvenementsProps {
   equipeId: string;
@@ -61,7 +49,7 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
   const [evenementAModifier, setEvenementAModifier] = useState<string | null>(null);
   const [dialogModifierStatsOuvert, setDialogModifierStatsOuvert] = useState(false);
   
-  // Nouveaux états pour les statistiques d'équipe
+  // États pour les statistiques d'équipe
   const [dialogAjouterStatsEquipeOuvert, setDialogAjouterStatsEquipeOuvert] = useState(false);
   const [dialogModifierStatsEquipeOuvert, setDialogModifierStatsEquipeOuvert] = useState(false);
   const [dialogSuppressionStatsEquipeOuvert, setDialogSuppressionStatsEquipeOuvert] = useState(false);
@@ -78,26 +66,23 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
   const totalPages = data?.pagination?.pages || 1;
   
   // Calculer la page courante en tenant compte des limites
-  // Si la page demandée dépasse le nombre total de pages, on utilise la page 1
   const currentPage = (data?.pagination && filtres.page > data.pagination.pages && data.pagination.pages > 0) 
     ? 1 
     : (data?.pagination?.page || filtres.page);
 
   const handleTypeChange = (value: string) => {
     if (value === "TOUS" || value === "MATCH" || value === "ENTRAINEMENT") {
-      setFiltres(prev => ({ ...prev, type: value, page: 1 })); // Réinitialiser à la page 1 lors du changement de filtre
+      setFiltres(prev => ({ ...prev, type: value, page: 1 }));
     }
   };
 
   const handlePageChange = (page: number) => {
-    // Vérifier que la page est dans les limites valides
     const pageToSet = Math.min(Math.max(1, page), totalPages);
     setFiltres(prev => ({ ...prev, page: pageToSet }));
   };
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
-    // Réinitialiser à la page 1 lors du changement d'onglet
     setFiltres(prev => ({ ...prev, page: 1 }));
   };
 
@@ -153,31 +138,6 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
     }
   };
 
-  const getPresenceStatut = (statut: string | undefined) => {
-    switch (statut) {
-      case "PRESENT":
-        return <Badge className="bg-green-500">Présent</Badge>;
-      case "ABSENT":
-        return <Badge className="bg-red-500">Absent</Badge>;
-      case "INCERTAIN":
-        return <Badge className="bg-yellow-500">Incertain</Badge>;
-      default:
-        return <Badge className="bg-gray-400">Non renseigné</Badge>;
-    }
-  };
-
-  // Fonction pour afficher le type d'événement
-  const getTypeEvenement = (type: string) => {
-    switch (type) {
-      case "MATCH":
-        return <Badge className="bg-blue-500">Match</Badge>;
-      case "ENTRAINEMENT":
-        return <Badge className="bg-purple-500">Entraînement</Badge>;
-      default:
-        return <Badge>Autre</Badge>;
-    }
-  };
-
   // Fonction pour rendre la liste des événements
   const renderEvenements = (evenements: Evenement[]) => {
     if (evenements.length === 0) {
@@ -190,208 +150,26 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
 
     return (
       <div className="space-y-4 mt-4">
-        {evenements.map((evenement) => {
-          // Debug pour voir si les statistiques sont correctement récupérées
-          console.log("Événement:", evenement.id, "Stats joueur:", evenement.mesStatistiques, "Stats équipe:", evenement.statistiquesEquipe);
-          
-          return (
-            <Card key={evenement.id} className={evenement.dateDebut < new Date() ? "opacity-80" : ""}>
-              <CardHeader className="pb-2">
-                <div className="flex justify-between items-start">
-                  <CardTitle>{evenement.titre}</CardTitle>
-                  {getTypeEvenement(evenement.typeEvenement)}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex items-center text-gray-500">
-                    <CalendarIcon size={16} className="mr-2" />
-                    <span>{evenement.dateDebutFormatee}</span>
-                  </div>
-                  
-                  {evenement.lieu && (
-                    <div className="flex items-center text-gray-500">
-                      <MapPinIcon size={16} className="mr-2" />
-                      <span>{evenement.lieu}</span>
-                    </div>
-                  )}
-                  
-                  {evenement.description && (
-                    <>
-                      <Separator />
-                      <p className="text-sm">{evenement.description}</p>
-                    </>
-                  )}
-                  
-                  <Separator />
-                  
-                  <div className="space-y-2">
-                    
-                    {evenement.dateDebut >= new Date() ? (
-                      <PresenceEvenementForm 
-                        evenementId={evenement.id} 
-                        statutActuel={evenement.maPresence?.statut as StatutPresence | undefined} 
-                      />
-                    ) : (
-                      <div className="flex items-center">
-                        {getPresenceStatut(evenement.maPresence?.statut)}
-                      </div>
-                    )}
-
-                    <div className="mt-2 flex justify-end space-x-2">
-                      {/* Boutons pour les statistiques d'équipe (seulement pour les entraîneurs) */}
-                      {evenement.typeEvenement === "MATCH" && 
-                       estEntraineur && 
-                       evenement.maPresence?.statut === "PRESENT" && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              <MoreHorizontal className="h-4 w-4 mr-1" />
-                              Actions
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            {!evenement.statistiquesEquipe ? (
-                              <DropdownMenuItem 
-                                onClick={() => handleAjouterStatsEquipe(evenement.id)}
-                                className="cursor-pointer"
-                              >
-                                <ListPlus className="h-4 w-4 mr-2" />
-                                Ajouter stats équipe
-                              </DropdownMenuItem>
-                            ) : (
-                              <>
-                                <DropdownMenuItem 
-                                  onClick={() => handleModifierStatsEquipe(evenement.id)}
-                                  className="cursor-pointer"
-                                >
-                                  <PencilIcon className="h-4 w-4 mr-2" />
-                                  Modifier stats équipe
-                                </DropdownMenuItem>
-                                <DropdownMenuItem 
-                                  onClick={() => handleDeleteStatsEquipe(evenement.id)}
-                                  className="cursor-pointer text-red-600"
-                                  disabled={isSuppressionStatsEquipePending}
-                                >
-                                  {isSuppressionStatsEquipePending && evenementStatsEquipe === evenement.id ? (
-                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                  ) : (
-                                    <Trash2 className="h-4 w-4 mr-2" />
-                                  )}
-                                  Supprimer stats équipe
-                                </DropdownMenuItem>
-                              </>
-                            )}
-                            <DropdownMenuItem 
-                              asChild
-                              className="cursor-pointer"
-                            >
-                              <Link href={`/dashboardclient/equipe/${equipeId}/evenements/${evenement.id}/modifier`}>
-                                <PencilIcon className="h-4 w-4 mr-2" />
-                                Modifier événement
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => handleDeleteEvenement(evenement.id)}
-                              className="cursor-pointer text-red-600"
-                              disabled={isDeletePending}
-                            >
-                              {isDeletePending && evenementASupprimer === evenement.id ? (
-                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                              ) : (
-                                <Trash2 className="h-4 w-4 mr-2" />
-                              )}
-                              Supprimer événement
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
-
-                      {/* Bouton pour ajouter des statistiques (seulement pour les joueurs, pas les entraîneurs) */}
-                      {evenement.typeEvenement === "MATCH" && 
-                       evenement.maPresence?.statut === "PRESENT" &&
-                       !estEntraineur && 
-                       !evenement.mesStatistiques && (
-                        <FormulaireStatistiquesJoueur evenementId={evenement.id} />
-                      )}
-
-                      {/* Boutons pour modifier et supprimer les statistiques (seulement pour les joueurs avec des stats) */}
-                      {evenement.typeEvenement === "MATCH" && 
-                       evenement.maPresence?.statut === "PRESENT" &&
-                       !estEntraineur && 
-                       evenement.mesStatistiques && (
-                        <>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-blue-600 border-blue-600 hover:bg-blue-50 hover:text-blue-700"
-                            onClick={() => handleModifierStats(evenement.id)}
-                          >
-                            <PencilIcon className="h-4 w-4 mr-1" />
-                            Modifier stats
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700"
-                            onClick={() => handleDeleteStats(evenement.id)}
-                            disabled={isSuppressionStatsPending}
-                          >
-                            {isSuppressionStatsPending && evenementStatsASupprimer === evenement.id ? (
-                              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                            ) : (
-                              <Trash2 className="h-4 w-4 mr-1" />
-                            )}
-                            Supprimer stats
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {estEntraineur && !evenement.typeEvenement.includes("MATCH") && (
-                    <>
-                      <Separator className="my-2" />
-                      <div className="flex justify-end space-x-2">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              <MoreHorizontal className="h-4 w-4 mr-1" />
-                              Actions
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem 
-                              asChild
-                              className="cursor-pointer"
-                            >
-                              <Link href={`/dashboardclient/equipe/${equipeId}/evenements/${evenement.id}/modifier`}>
-                                <PencilIcon className="h-4 w-4 mr-2" />
-                                Modifier événement
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => handleDeleteEvenement(evenement.id)}
-                              className="cursor-pointer text-red-600"
-                              disabled={isDeletePending}
-                            >
-                              {isDeletePending && evenementASupprimer === evenement.id ? (
-                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                              ) : (
-                                <Trash2 className="h-4 w-4 mr-2" />
-                              )}
-                              Supprimer événement
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+        {evenements.map((evenement) => (
+          <EvenementCard
+            key={evenement.id}
+            evenement={evenement}
+            equipeId={equipeId}
+            estEntraineur={estEntraineur}
+            isDeletePending={isDeletePending}
+            isSuppressionStatsPending={isSuppressionStatsPending}
+            isSuppressionStatsEquipePending={isSuppressionStatsEquipePending}
+            evenementASupprimer={evenementASupprimer}
+            evenementStatsASupprimer={evenementStatsASupprimer}
+            evenementStatsEquipe={evenementStatsEquipe}
+            handleModifierStats={handleModifierStats}
+            handleDeleteStats={handleDeleteStats}
+            handleAjouterStatsEquipe={handleAjouterStatsEquipe}
+            handleModifierStatsEquipe={handleModifierStatsEquipe}
+            handleDeleteStatsEquipe={handleDeleteStatsEquipe}
+            handleDeleteEvenement={handleDeleteEvenement}
+          />
+        ))}
       </div>
     );
   };
@@ -468,11 +246,8 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
               className="bg-red-600 hover:bg-red-700 text-white flex items-center"
               disabled={isDeletePending}
             >
-              {isDeletePending ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Trash2 className="h-4 w-4 mr-2" />
-              )}
+              {isDeletePending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              <Trash2 className="h-4 w-4 mr-2" />
               Supprimer définitivement
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -483,9 +258,9 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
       <AlertDialog open={dialogSuppressionStatsOuvert} onOpenChange={setDialogSuppressionStatsOuvert}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer vos statistiques ?</AlertDialogTitle>
+            <AlertDialogTitle>Supprimer vos statistiques ?</AlertDialogTitle>
             <AlertDialogDescription>
-              Cette action est irréversible. Vous pourrez ajouter de nouvelles statistiques après la suppression.
+              Cette action supprimera définitivement vos statistiques pour cet événement.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -495,82 +270,49 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
               className="bg-red-600 hover:bg-red-700 text-white flex items-center"
               disabled={isSuppressionStatsPending}
             >
-              {isSuppressionStatsPending ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Trash2 className="h-4 w-4 mr-2" />
-              )}
-              Supprimer définitivement
+              {isSuppressionStatsPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              <Trash2 className="h-4 w-4 mr-2" />
+              Supprimer
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
       {/* Dialog de modification des statistiques joueur */}
-      <AlertDialog open={dialogModifierStatsOuvert} onOpenChange={setDialogModifierStatsOuvert}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Modifier vos statistiques</AlertDialogTitle>
-          </AlertDialogHeader>
-          <div className="py-4">
-            {evenementAModifier && <FormulaireStatistiquesJoueur 
-              evenementId={evenementAModifier} 
-              isModification={true}
-              onSubmitSuccess={() => setDialogModifierStatsOuvert(false)}
-            />}
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {dialogModifierStatsOuvert && evenementAModifier && (
+        <FormulaireStatistiquesJoueur 
+          evenementId={evenementAModifier} 
+          isModification={true}
+          onSubmitSuccess={() => setDialogModifierStatsOuvert(false)}
+        />
+      )}
 
-      {/* Dialog d'ajout des statistiques équipe */}
-      <AlertDialog open={dialogAjouterStatsEquipeOuvert} onOpenChange={setDialogAjouterStatsEquipeOuvert}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Ajouter les statistiques de l&apos;équipe</AlertDialogTitle>
-          </AlertDialogHeader>
-          <div className="py-4">
-            {evenementStatsEquipe && <FormulaireStatistiquesEquipe 
-              evenementId={evenementStatsEquipe}
-              equipeId={equipeId} 
-              onSubmitSuccess={() => setDialogAjouterStatsEquipeOuvert(false)}
-            />}
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Dialog d'ajout de statistiques d'équipe */}
+      {dialogAjouterStatsEquipeOuvert && evenementStatsEquipe && (
+        <FormulaireStatistiquesEquipe 
+          evenementId={evenementStatsEquipe}
+          equipeId={equipeId}
+          onSubmitSuccess={() => setDialogAjouterStatsEquipeOuvert(false)}
+        />
+      )}
 
-      {/* Dialog de modification des statistiques équipe */}
-      <AlertDialog open={dialogModifierStatsEquipeOuvert} onOpenChange={setDialogModifierStatsEquipeOuvert}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Modifier les statistiques de l&apos;équipe</AlertDialogTitle>
-          </AlertDialogHeader>
-          <div className="py-4">
-            {evenementStatsEquipe && <FormulaireStatistiquesEquipe 
-              evenementId={evenementStatsEquipe}
-              equipeId={equipeId} 
-              isModification={true}
-              onSubmitSuccess={() => setDialogModifierStatsEquipeOuvert(false)}
-            />}
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Dialog de modification des statistiques d'équipe */}
+      {dialogModifierStatsEquipeOuvert && evenementStatsEquipe && (
+        <FormulaireStatistiquesEquipe 
+          evenementId={evenementStatsEquipe}
+          equipeId={equipeId}
+          isModification={true}
+          onSubmitSuccess={() => setDialogModifierStatsEquipeOuvert(false)}
+        />
+      )}
 
-      {/* Dialog de suppression des statistiques équipe */}
+      {/* Dialog de suppression des statistiques d'équipe */}
       <AlertDialog open={dialogSuppressionStatsEquipeOuvert} onOpenChange={setDialogSuppressionStatsEquipeOuvert}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer les statistiques de l&apos;équipe ?</AlertDialogTitle>
+            <AlertDialogTitle>Supprimer les statistiques d&apos;équipe ?</AlertDialogTitle>
             <AlertDialogDescription>
-              Cette action est irréversible. Vous pourrez ajouter de nouvelles statistiques après la suppression.
+              Cette action supprimera définitivement les statistiques d&apos;équipe pour cet événement.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -580,12 +322,9 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
               className="bg-red-600 hover:bg-red-700 text-white flex items-center"
               disabled={isSuppressionStatsEquipePending}
             >
-              {isSuppressionStatsEquipePending ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Trash2 className="h-4 w-4 mr-2" />
-              )}
-              Supprimer définitivement
+              {isSuppressionStatsEquipePending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              <Trash2 className="h-4 w-4 mr-2" />
+              Supprimer
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
