@@ -13,7 +13,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, MapPinIcon, Trash2, PencilIcon, Loader2, ListPlus } from "lucide-react";
+import { CalendarIcon, MapPinIcon, Trash2, PencilIcon, Loader2, ListPlus, MoreHorizontal } from "lucide-react";
 import { useEvenementsEquipe } from "../(hooks)/UseEvenement-Equipe";
 import { useDeleteEvenement } from "../(hooks)/UseDeleteEvenement";
 import { FiltreEvenements } from "@/app/(schema)/SchemaEvenementv2";
@@ -36,6 +36,12 @@ import FormulaireStatistiquesJoueur from "../../statistiquesjoueur/(components)/
 import { useSupprimerStatistiqueJoueur } from "../../statistiquesjoueur/(hook)/UseStatistiquejoueur";
 import { useSupprimerStatistiqueEquipe } from "../../statistiquesequipe/(hook)/useStatistiqueEquipe";
 import FormulaireStatistiquesEquipe from "../../statistiquesequipe/(components)/FormulaireStatistiquesEquipe";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ListeEvenementsProps {
   equipeId: string;
@@ -237,47 +243,68 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
                       {evenement.typeEvenement === "MATCH" && 
                        estEntraineur && 
                        evenement.maPresence?.statut === "PRESENT" && (
-                        <>
-                          {!evenement.statistiquesEquipe ? (
-                            // Bouton pour ajouter des statistiques d'équipe
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700"
-                              onClick={() => handleAjouterStatsEquipe(evenement.id)}
-                            >
-                              <ListPlus className="h-4 w-4 mr-1" />
-                              Ajouter stats équipe
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <MoreHorizontal className="h-4 w-4 mr-1" />
+                              Actions
                             </Button>
-                          ) : (
-                            // Boutons pour modifier et supprimer les statistiques d'équipe
-                            <>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-blue-600 border-blue-600 hover:bg-blue-50 hover:text-blue-700"
-                                onClick={() => handleModifierStatsEquipe(evenement.id)}
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {!evenement.statistiquesEquipe ? (
+                              <DropdownMenuItem 
+                                onClick={() => handleAjouterStatsEquipe(evenement.id)}
+                                className="cursor-pointer"
                               >
-                                <PencilIcon className="h-4 w-4 mr-1" />
-                                Modifier stats équipe
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700"
-                                onClick={() => handleDeleteStatsEquipe(evenement.id)}
-                                disabled={isSuppressionStatsEquipePending}
-                              >
-                                {isSuppressionStatsEquipePending && evenementStatsEquipe === evenement.id ? (
-                                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                                ) : (
-                                  <Trash2 className="h-4 w-4 mr-1" />
-                                )}
-                                Supprimer stats équipe
-                              </Button>
-                            </>
-                          )}
-                        </>
+                                <ListPlus className="h-4 w-4 mr-2" />
+                                Ajouter stats équipe
+                              </DropdownMenuItem>
+                            ) : (
+                              <>
+                                <DropdownMenuItem 
+                                  onClick={() => handleModifierStatsEquipe(evenement.id)}
+                                  className="cursor-pointer"
+                                >
+                                  <PencilIcon className="h-4 w-4 mr-2" />
+                                  Modifier stats équipe
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  onClick={() => handleDeleteStatsEquipe(evenement.id)}
+                                  className="cursor-pointer text-red-600"
+                                  disabled={isSuppressionStatsEquipePending}
+                                >
+                                  {isSuppressionStatsEquipePending && evenementStatsEquipe === evenement.id ? (
+                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                  ) : (
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                  )}
+                                  Supprimer stats équipe
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                            <DropdownMenuItem 
+                              asChild
+                              className="cursor-pointer"
+                            >
+                              <Link href={`/dashboardclient/equipe/${equipeId}/evenements/${evenement.id}/modifier`}>
+                                <PencilIcon className="h-4 w-4 mr-2" />
+                                Modifier événement
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleDeleteEvenement(evenement.id)}
+                              className="cursor-pointer text-red-600"
+                              disabled={isDeletePending}
+                            >
+                              {isDeletePending && evenementASupprimer === evenement.id ? (
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4 mr-2" />
+                              )}
+                              Supprimer événement
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       )}
 
                       {/* Bouton pour ajouter des statistiques (seulement pour les joueurs, pas les entraîneurs) */}
@@ -322,36 +349,41 @@ export default function ListeEvenements({ equipeId, estEntraineur = false }: Lis
                     </div>
                   </div>
                   
-                  {estEntraineur && (
+                  {estEntraineur && !evenement.typeEvenement.includes("MATCH") && (
                     <>
                       <Separator className="my-2" />
                       <div className="flex justify-end space-x-2">
-                        <Link 
-                          href={`/dashboardclient/equipe/${equipeId}/evenements/${evenement.id}/modifier`}
-                        >
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="text-blue-600 border-blue-600 hover:bg-blue-50 hover:text-blue-700"
-                          >
-                            <PencilIcon className="h-4 w-4 mr-1" />
-                            Modifier
-                          </Button>
-                        </Link>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700"
-                          onClick={() => handleDeleteEvenement(evenement.id)}
-                          disabled={isDeletePending}
-                        >
-                          {isDeletePending && evenementASupprimer === evenement.id ? (
-                            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-4 w-4 mr-1" />
-                          )}
-                          Supprimer
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <MoreHorizontal className="h-4 w-4 mr-1" />
+                              Actions
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem 
+                              asChild
+                              className="cursor-pointer"
+                            >
+                              <Link href={`/dashboardclient/equipe/${equipeId}/evenements/${evenement.id}/modifier`}>
+                                <PencilIcon className="h-4 w-4 mr-2" />
+                                Modifier événement
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleDeleteEvenement(evenement.id)}
+                              className="cursor-pointer text-red-600"
+                              disabled={isDeletePending}
+                            >
+                              {isDeletePending && evenementASupprimer === evenement.id ? (
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4 mr-2" />
+                              )}
+                              Supprimer événement
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </>
                   )}
