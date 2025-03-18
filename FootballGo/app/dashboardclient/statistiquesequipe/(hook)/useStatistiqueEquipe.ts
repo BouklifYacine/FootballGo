@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import { StatistiqueEquipeReponse, ServerActionResponse } from "../(types)/types";
+import { StatistiqueEquipeReponse, ServerActionResponse, StatistiqueEquipeAgrege } from "../(types)/types";
 import { StatistiqueEquipeSchema } from "@/app/(schema)/SchemaStatistique";
 import { z } from "zod";
 import { ajouterStatistiqueEquipe, modifierStatistiqueEquipe, supprimerStatistiqueEquipe } from "../(server-action)/StatistiqueEquipeAction";
@@ -11,7 +11,7 @@ import { ajouterStatistiqueEquipe, modifierStatistiqueEquipe, supprimerStatistiq
 export type StatistiqueEquipeInputs = z.infer<typeof StatistiqueEquipeSchema>;
 
 export function useStatistiqueEquipeFDP(id: string) {
-  return useQuery({
+  return useQuery<StatistiqueEquipeAgrege>({
     queryKey: ["statistique-equipe", id],
     queryFn: async () => {
       const { data } = await axios.get<StatistiqueEquipeReponse>(
@@ -23,8 +23,6 @@ export function useStatistiqueEquipeFDP(id: string) {
   });
 }
 
-
-// Hook pour ajouter des statistiques d'équipe
 export function useAjouterStatistiqueEquipe() {
   const queryClient = useQueryClient();
 

@@ -19,8 +19,24 @@ export interface StatistiqueEquipe {
   updatedAt: Date;
 }
 
+// Type pour les statistiques agrégées que l'API renvoie réellement
+export interface StatistiqueEquipeAgrege {
+  points: number;
+  totalMatchs: number;
+  victoires: number;
+  nuls: number;
+  defaites: number;
+  butsMarques: number;
+  butsEncaisses: number;
+  differenceDeButsGlobale: number;
+  cleanSheets: number;
+  tauxVictoire: number;
+  moyenneButsMarques: number;
+  moyenneButsEncaisses: number;
+}
+
 export interface StatistiqueEquipeReponse {
-  StatistiqueEquipe: StatistiqueEquipe[];
+  StatistiqueEquipe: StatistiqueEquipeAgrege;
 }
 
 export interface ServerActionResponse {
@@ -36,7 +52,7 @@ export interface ServerActionResponse {
     tirsCadres?: number | null;
     domicile: boolean;
     competition: Competition;
-    adversaire: string;// Pour les champs additionnels retournés par Prisma
+    adversaire: string;
   };
   erreurs?: unknown;
 }
