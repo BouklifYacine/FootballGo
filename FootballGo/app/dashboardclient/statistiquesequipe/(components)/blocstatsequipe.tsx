@@ -1,10 +1,11 @@
 "use client"
 
-import {  Award,  ChartNoAxesCombined, ThumbsUp, ThumbsDown } from "lucide-react";
+import { ThumbsUp, ThumbsDown } from "lucide-react";
 import React from "react";
 import { useSession } from "next-auth/react";
 import Loading from "../../(components)/Loading";
 import { useStatistiqueEquipeFDP } from "../(hook)/useStatistiqueEquipe";
+import RadarGraphEquipe from "./RadarGraphEquipe";
 
 import { TbPlayFootball } from "react-icons/tb";
 import { IoIosFootball } from "react-icons/io";
@@ -117,6 +118,9 @@ const BlocStatsEquipe = () => {
           <p className="text-gray-500 text-sm">Cette saison</p>
         </div>
       </div>
+
+      {/* Graphique radar des statistiques de l'équipe */}
+      <RadarGraphEquipe />
     </>
   );
 };
