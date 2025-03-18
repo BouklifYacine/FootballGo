@@ -11,6 +11,7 @@ import { useSession } from "next-auth/react";
 import Loading from "../../(components)/Loading";
 import { IoFootball } from "react-icons/io5";
 import { TbPlayFootball } from "react-icons/tb";
+import RadarGraph from "./RadarGraph";
 
 const BlockStats = () => {
   const { data: session } = useSession();
@@ -46,7 +47,7 @@ const BlockStats = () => {
           </div>
           <div className="pt-6">
             <p className="font-bold text-2xl tracking-tighter md:text-4xl text-green-500">
-              {data.totalButs}
+              {data?.totalButs}
             </p>
           </div>
 
@@ -65,7 +66,7 @@ const BlockStats = () => {
           </div>
           <div className="pt-6">
             <p className="font-bold text-2xl tracking-tighter md:text-4xl text-green-500">
-              {data.totalPasses}
+              {data?.totalPasses}
             </p>
           </div>
 
@@ -84,7 +85,7 @@ const BlockStats = () => {
           </div>
           <div className="pt-6">
             <p className="font-bold text-2xl tracking-tighter md:text-4xl text-green-500">
-              {data.GA_TOTAL}
+              {data?.GA_TOTAL}
             </p>
           </div>
 
@@ -103,7 +104,7 @@ const BlockStats = () => {
           </div>
           <div className="pt-6">
             <p className="font-bold text-2xl tracking-tighter md:text-4xl text-green-500">
-              {data.GAPar90}
+              {data?.GAPar90}
             </p>
           </div>
 
@@ -122,13 +123,16 @@ const BlockStats = () => {
           </div>
           <div className="pt-6">
             <p className="font-bold text-2xl tracking-tighter md:text-4xl text-green-500">
-              {data.noteMoyenne}
+              {data?.noteMoyenne}
             </p>
           </div>
 
           <p className="text-gray-500 text-sm">Cette saison</p>
         </div>
       </div>
+      
+      {/* Graphique radar des statistiques du joueur */}
+      <RadarGraph />
     </>
   );
 };
