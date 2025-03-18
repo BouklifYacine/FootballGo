@@ -2,6 +2,7 @@ import { StatistiqueEquipeSchema } from "@/app/(schema)/SchemaStatistique";
 import { prisma } from "@/prisma";
 import dayjs from "dayjs";
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from '@/auth';
 
 interface RouteParams {
   params: {
@@ -11,9 +12,16 @@ interface RouteParams {
 }
 
 dayjs.locale("fr");
-const idUtilisateur = "cm7stg4000000irowgylbnkpq";
+
 
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
+
+  const session = await auth()
+  if (!session) {
+    return NextResponse.json({ message: "Non Authentifié" }, { status: 401 });
+  }
+  const idUtilisateur = session.user?.id
+  
   const { id, equipeId } = params;
   const body = await request.json();
 
@@ -117,6 +125,11 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 }
 
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
+  const session = await auth()
+  if (!session) {
+    return NextResponse.json({ message: "Non Authentifié" }, { status: 401 });
+  }
+  const idUtilisateur = session.user?.id
   const { id, equipeId } = params;
 
   const evenementMatch = await prisma.evenement.findUnique({
