@@ -1,12 +1,17 @@
-
+version: '3.8'
 
 services:
   nextjs:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: footballgo-app
+    restart: unless-stopped
     ports:
       - 3000:3000
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public
     env_file:
       - .env
     develop:
@@ -20,19 +25,39 @@ services:
         - path: .
           target: /app
           action: sync
+          ignore:
+            - node_modules/
+            - .next/
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    networks:
+      - footballgo-network
 
   db:
     image: postgres:16-alpine
+    container_name: footballgo-db
+    restart: unless-stopped
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-footballgo}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-footballgo}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - footballgo-network
+
+networks:
+  footballgo-network:
+    driver: bridge
 
 volumes:
   postgres_data:
+    name: footballgo-postgres-data
