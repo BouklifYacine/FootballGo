@@ -38,3 +38,11 @@ export const SchemaChangementMotDePasse = z.object({
 });
 
 
+export const changementMotDePasseSchema = z.object({
+  email: z.string().email("Format d'email invalide"),
+  motdepasseactuel: z.string().min(1, "Le mot de passe actuel est requis"),
+  nouveaumotdepasse: z.string()
+    .min(8, "Le nouveau mot de passe doit contenir au moins 8 caractères")
+    .max(25, "Le mot de passe est trop long")
+    
+});

@@ -5,7 +5,7 @@ import Header from "@/components/header";
 import { TableauDeBordClient } from "../TableauDeBordClient";
 import { useStats, useUtilisateurs } from "../(hooks)/UseDashboard";
 
-const ComponentPage = () => {
+const DashboardPage = () => {
   const [page, setPage] = useState(0);
 
   const {
@@ -80,4 +80,4 @@ const ComponentPage = () => {
   );
 };
 
-export default ComponentPage;
+export default DashboardPage;

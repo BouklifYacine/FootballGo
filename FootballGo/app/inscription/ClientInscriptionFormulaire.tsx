@@ -39,7 +39,7 @@ const ClientInscriptionFormulaire = () => {
         setErreurMessage("Inscription échouée");
       }
     } catch (error) {
-      console.error('Erreur API:', error);
+      console.error("Erreur API:", error);
       setErreurMessage("Une erreur est survenue");
     }
   };
@@ -93,10 +93,8 @@ const ClientInscriptionFormulaire = () => {
             className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
             size={20}
           />
-        
-             <InputPassword
-                         {...register("password")}
-                        />
+
+          <InputPassword {...register("password")} />
         </div>
         {errors.password && (
           <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>

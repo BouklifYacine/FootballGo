@@ -51,21 +51,28 @@ export async function POST(request: NextRequest) {
 }
 
 async function handleSubscriptionCanceled(event: Stripe.Event) {
+
+  // C'est la première étape où on récupère les données pertinentes envoyées par Stripe
   const subscription = event.data.object as Stripe.Subscription;
   const customerId = subscription.customer as string;
+
 
   const user = await prisma.user.findUnique({
     where: { clientId: customerId }
   });
 
+  // Vérification que l'utilisateur existe bien
   if (!user) {
     throw new Error("Utilisateur non trouvé pour le customerId: " + customerId);
   }
 
+  // Suppression de l'enregistrement d'abonnement dans notre base de données
   await prisma.abonnement.delete({
     where: { userId: user.id }
   });
 
+  // Mise à jour du statut de l'utilisateur pour le repasser en plan gratuit
+  // et suppression de la référence à son ID client Stripe
   await prisma.user.update({
     where: { id: user.id },
     data: {
@@ -74,13 +81,14 @@ async function handleSubscriptionCanceled(event: Stripe.Event) {
     }
   });
 
-
   if (user.email) {
+    // Création du contenu de l'email avec un composant prédéfini
     const emailElement = createElement(EmailSuppressionAbonnement, {
-      name: user.name || user.email,
-      plan: "Pro"
+      name: user.name || user.email,  // Personnalisation avec son nom ou email
+      plan: "Pro"                      // Indication du plan résilié
     });
 
+    // Envoi effectif de l'email de confirmation
     await sendEmail({
       to: user.email,
       subject: "Confirmation de résiliation de votre abonnement",
