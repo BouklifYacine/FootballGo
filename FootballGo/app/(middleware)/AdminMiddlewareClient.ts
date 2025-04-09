@@ -4,10 +4,14 @@ import { redirect } from "next/navigation";
 
 export async function AdminMiddlewareClient() {
   const session = await auth();
+
   const sessionID = session?.user?.id;
+
   if (!sessionID) redirect("/");
+
   const utilisateur = await prisma.user.findUnique({
     where: { id: sessionID },
+    select: { role: true }
   });
   const admin = utilisateur?.role === "Admin";
   if (!admin) redirect("/");

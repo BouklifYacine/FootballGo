@@ -6,8 +6,14 @@ import EmailBienvenue from "@/app/(emails)/EmailBievenue";
 import { createElement } from "react";
 import { sendEmail } from "@/app/utils/email";
 
+interface RequeteUtilisateur {
+  email: string;
+  password: string;
+  name: string;
+}
+
 export async function POST(request: NextRequest) {
-  const { email, password, name } = await request.json();
+  const { email, password, name }: RequeteUtilisateur = await request.json();
 
   const emailElement = createElement(EmailBienvenue, { name });
   const validation = SchemaInscription.safeParse({ email, password, name });

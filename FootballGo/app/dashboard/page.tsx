@@ -1,14 +1,13 @@
 import React from "react";
-import ComponentPage from "./components/componentspage";
-
 import { AdminMiddlewareClient } from "../(middleware)/AdminMiddlewareClient";
+import DashboardPage from "./components/Dashboardpage";
 
 const DashboardServer = async () => {
  
   await AdminMiddlewareClient()
 
   return (
-    <> <ComponentPage></ComponentPage> </>
+    <> <DashboardPage/> </>
   );
 };
 
