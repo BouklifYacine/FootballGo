@@ -12,7 +12,7 @@ model User {
   name             String        @unique
   email            String         @unique
   emailVerified    DateTime?
-  password         String
+  password         String?
   image            String?
   role             Roles           @default(utilisateur)
   roleEquipe       RoleEquipe      @default(SANSCLUB)
