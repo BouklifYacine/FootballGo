@@ -24,6 +24,21 @@ export interface Presence {
   dateCreation: string;
 }
 
+// Types pour les mutations
+export interface CreerPresenceParams {
+  evenementId: string;
+  statut: StatutPresence;
+  userId?: string;
+}
+
+// Type pour le contexte d'optimistic update
+type PresenceUpdateContext = {
+  previousPresences?: Presence[];
+  previousEvenementPresences?: Presence[];
+  newPresence?: Partial<Presence>;
+  updatedPresence?: Presence;
+};
+
 export const usePresences = (evenementId: string) => {
   return useQuery({
     queryKey: ["presences", evenementId],
@@ -46,21 +61,6 @@ export const usePresencesUtilisateur = () => {
     },
     staleTime: 1000 * 60 * 5, 
   });
-};
-
-// Types pour les mutations
-export interface CreerPresenceParams {
-  evenementId: string;
-  statut: StatutPresence;
-  userId?: string;
-}
-
-// Type pour le contexte d'optimistic update
-type PresenceUpdateContext = {
-  previousPresences?: Presence[];
-  previousEvenementPresences?: Presence[];
-  newPresence?: Partial<Presence>;
-  updatedPresence?: Presence;
 };
 
 // Hook pour créer/mettre à jour une présence

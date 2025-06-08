@@ -18,7 +18,7 @@ export default async function NouvelEvenementPage({params} : PropsID) {
     redirect("/login");
   }
   
-  const membreEquipe = await prisma.membreEquipe.findFirst({
+  const entraineur = await prisma.membreEquipe.findFirst({
     where: {
       userId: session.user.id,
       equipeId,
@@ -33,7 +33,7 @@ export default async function NouvelEvenementPage({params} : PropsID) {
     },
   });
   
-  if (!membreEquipe) {
+  if (!entraineur) {
     redirect(`/dashboardclient/equipe/${equipeId}`);
   }
   
@@ -47,7 +47,7 @@ export default async function NouvelEvenementPage({params} : PropsID) {
           </Button>
         </Link>
         <h1 className="text-3xl font-bold ml-4">
-          Nouvel événement pour {membreEquipe.equipe.nom}
+          Nouvel événement pour {entraineur.equipe.nom}
         </h1>
       </div>
       

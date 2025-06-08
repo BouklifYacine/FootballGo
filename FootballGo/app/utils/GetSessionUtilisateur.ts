@@ -1,4 +1,4 @@
-// actions/auth-actions.ts
+
 import { auth } from "@/auth";
 import { prisma } from "@/prisma";
 
